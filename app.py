@@ -30,7 +30,7 @@ SECRET_PASSWORD = "0731"
 
 st.set_page_config(page_title="ギリシャ語Duo道場", page_icon="🇬🇷", layout="centered")
 
-# 安全なCSSによる自動翻訳防止 ＆ 単語ポップアップデザイン
+# 安全なCSSによる自動翻訳防止 ＆ 単語ポップアップ ＆ 録音ボタン特大化デザイン
 st.markdown(
     """
     <style>
@@ -115,12 +115,27 @@ st.markdown(
         font-size: 0.95rem;
         line-height: 1.5rem;
     }
-    .pronounce-card {
-        background-color: #f8fafc;
-        border: 1.5px dashed #38bdf8;
-        border-radius: 10px;
-        padding: 14px;
-        margin-top: 14px;
+
+    /* 🎤 録音・停止ボタンの特大化スタイル */
+    [data-testid="stAudioInput"] {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        background-color: #f0f9ff !important;
+        border: 2px dashed #0284c7 !important;
+        border-radius: 16px !important;
+        padding: 22px 14px !important;
+        margin: 12px 0 !important;
+    }
+    [data-testid="stAudioInput"] button {
+        transform: scale(1.7) !important;
+        margin: 12px 24px !important;
+        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3) !important;
+        cursor: pointer !important;
+        transition: transform 0.1s ease !important;
+    }
+    [data-testid="stAudioInput"] button:active {
+        transform: scale(1.55) !important;
     }
     </style>
     """,
@@ -389,6 +404,7 @@ DATASET = [
         "dish_info": "エスプレッソを氷と一緒にミキサーで急冷したギリシャ若者の圧倒的1番人気ドリンクです。"
     },
     {
+        "greek": "Έναν φρέντο καπουτσίノ, παρακαλώ.",
         "greek": "Έναν φρέντο καπουτσίノ, παρακαλώ.",
         "greek": "Έναν φρέντο καπουτσίνο, παρακαλώ.",
         "reading": "エナン フレット カプチーノ, パラカロ",
@@ -1437,7 +1453,6 @@ def get_greek_audio(text):
     return fp.read()
 
 def normalize_greek(text):
-    # アクセント記号（トノス）や句読点の揺らぎを吸収する正規化
     nfd = unicodedata.normalize('NFD', text.lower())
     no_accents = ''.join(c for c in nfd if unicodedata.category(c) != 'Mn')
     no_accents = no_accents.replace('ς', 'σ')
@@ -1452,10 +1467,8 @@ def evaluate_pronunciation(audio_file, target_greek):
     try:
         with sr.AudioFile(audio_file) as source:
             audio_data = r.record(source)
-        # Google音声認識でギリシャ語を文字起こし
         recognized = r.recognize_google(audio_data, language="el-GR")
         
-        # 類似度スコアの計算
         norm_target = normalize_greek(target_greek)
         norm_rec = normalize_greek(recognized)
         score = SequenceMatcher(None, norm_target, norm_rec).ratio()
@@ -1808,22 +1821,24 @@ else:
         """, unsafe_allow_html=True)
 
     # -------------------------------------------------------------
-    # 🎤 発音チェック機能（AI判定）
+    # 🎤 発音チェック機能（特大ボタンUI）
     # -------------------------------------------------------------
     if speaker_val != "看板":
         with st.expander("🎤 声に出して発音テストに挑戦！（通じる度判定）", expanded=False):
             if not SPEECH_REC_AVAILABLE:
                 st.warning("⚠️ 発音チェック機能を使うには、PCのコマンドプロンプトで `pip install SpeechRecognition` を実行してください。")
             else:
-                st.caption(f"「{q['reading']}」とマイクに向かって発音してみましょう。")
-                audio_recorded = st.audio_input("マイクを押して発音を録音", key=f"rec_{st.session_state.q_count}")
+                st.info(f"🗣️ **お手本発音:** **「 {q['reading']} 」**")
+                st.caption("👇 **大きなマイクを押して録音開始 ➔ 言い終わったらもう一度押して停止（判定）**")
+                
+                audio_recorded = st.audio_input("マイク録音", key=f"rec_{st.session_state.q_count}", label_visibility="collapsed")
 
                 if audio_recorded is not None:
                     with st.spinner("AIが発音を聞き取り中..."):
                         recognized_text, result = evaluate_pronunciation(audio_recorded, q["greek"])
 
                     if recognized_text:
-                        st.write(f"👂 **AIが聞き取ったギリシャ語:** 「 {recognized_text} 」")
+                        st.write(f"👂 **AIが聞き取ったギリシャ語:** 「 **{recognized_text}** 」")
                         if result >= 80:
                             st.success(f"🌟 **判定: {result}%！ 完璧です！** ネイティブに確実に通じます！")
                         elif result >= 55:
