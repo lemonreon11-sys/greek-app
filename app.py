@@ -1,8 +1,18 @@
 import io
 import random
+import re
 import sys
+import unicodedata
+from difflib import SequenceMatcher
 import streamlit as st
 from gtts import gTTS
+
+# 音声認識ライブラリの安全インポート
+try:
+    import speech_recognition as sr
+    SPEECH_REC_AVAILABLE = True
+except ImportError:
+    SPEECH_REC_AVAILABLE = False
 
 # -------------------------------------------------------------
 # 0. F5キー直接実行時の自動ブラウザ切り替え処理
@@ -104,6 +114,13 @@ st.markdown(
         color: #166534;
         font-size: 0.95rem;
         line-height: 1.5rem;
+    }
+    .pronounce-card {
+        background-color: #f8fafc;
+        border: 1.5px dashed #38bdf8;
+        border-radius: 10px;
+        padding: 14px;
+        margin-top: 14px;
     }
     </style>
     """,
@@ -1409,7 +1426,7 @@ DATASET = [
 ]
 
 # -------------------------------------------------------------
-# 3. 音声生成関数
+# 3. 音声生成 ＆ 発音判定関数
 # -------------------------------------------------------------
 @st.cache_data
 def get_greek_audio(text):
@@ -1418,6 +1435,35 @@ def get_greek_audio(text):
     tts.write_to_fp(fp)
     fp.seek(0)
     return fp.read()
+
+def normalize_greek(text):
+    # アクセント記号（トノス）や句読点の揺らぎを吸収する正規化
+    nfd = unicodedata.normalize('NFD', text.lower())
+    no_accents = ''.join(c for c in nfd if unicodedata.category(c) != 'Mn')
+    no_accents = no_accents.replace('ς', 'σ')
+    clean = re.sub(r'[^\w\s]', '', no_accents).strip()
+    return ' '.join(clean.split())
+
+def evaluate_pronunciation(audio_file, target_greek):
+    if not SPEECH_REC_AVAILABLE:
+        return None, "SPEECH_REC_NOT_INSTALLED"
+
+    r = sr.Recognizer()
+    try:
+        with sr.AudioFile(audio_file) as source:
+            audio_data = r.record(source)
+        # Google音声認識でギリシャ語を文字起こし
+        recognized = r.recognize_google(audio_data, language="el-GR")
+        
+        # 類似度スコアの計算
+        norm_target = normalize_greek(target_greek)
+        norm_rec = normalize_greek(recognized)
+        score = SequenceMatcher(None, norm_target, norm_rec).ratio()
+        return recognized, round(score * 100)
+    except sr.UnknownValueError:
+        return None, "UNKNOWN_VALUE"
+    except Exception as e:
+        return None, str(e)
 
 # -------------------------------------------------------------
 # 4. 単語タップ可能なHTML文章生成関数
@@ -1606,7 +1652,7 @@ if filter_changed or (st.session_state.current_q is None and not st.session_stat
 st.title("🇬🇷 ギリシャ語特訓アプリ")
 
 # =============================================================
-# A. 復習特訓完了画面（キューが空になった時に確実に表示）
+# A. 復習特訓完了画面
 # =============================================================
 if st.session_state.is_review_mode and not st.session_state.review_queue:
     st.balloons()
@@ -1622,7 +1668,7 @@ if st.session_state.is_review_mode and not st.session_state.review_queue:
         st.session_state.hearts = 5
         st.session_state.streak = 0
         st.session_state.wrong_questions = []
-        st.session_state.deck = []  # 新しい山札をセット
+        st.session_state.deck = []
         st.session_state.answered = False
         next_question()
         st.rerun()
@@ -1725,7 +1771,7 @@ if not st.session_state.answered:
             st.rerun()
 else:
     # =============================================================
-    # E. 解答後の結果表示 ＆ 次へ進む処理
+    # E. 解答後の結果表示 ＆ 発音チェック
     # =============================================================
     if st.session_state.is_correct:
         if st.session_state.is_review_mode:
@@ -1760,6 +1806,34 @@ else:
           💡 <strong>どんな料理・文化？（グルメ解説）:</strong><br>{dish_info}
         </div>
         """, unsafe_allow_html=True)
+
+    # -------------------------------------------------------------
+    # 🎤 発音チェック機能（AI判定）
+    # -------------------------------------------------------------
+    if speaker_val != "看板":
+        with st.expander("🎤 声に出して発音テストに挑戦！（通じる度判定）", expanded=False):
+            if not SPEECH_REC_AVAILABLE:
+                st.warning("⚠️ 発音チェック機能を使うには、PCのコマンドプロンプトで `pip install SpeechRecognition` を実行してください。")
+            else:
+                st.caption(f"「{q['reading']}」とマイクに向かって発音してみましょう。")
+                audio_recorded = st.audio_input("マイクを押して発音を録音", key=f"rec_{st.session_state.q_count}")
+
+                if audio_recorded is not None:
+                    with st.spinner("AIが発音を聞き取り中..."):
+                        recognized_text, result = evaluate_pronunciation(audio_recorded, q["greek"])
+
+                    if recognized_text:
+                        st.write(f"👂 **AIが聞き取ったギリシャ語:** 「 {recognized_text} 」")
+                        if result >= 80:
+                            st.success(f"🌟 **判定: {result}%！ 完璧です！** ネイティブに確実に通じます！")
+                        elif result >= 55:
+                            st.info(f"👍 **判定: {result}%！ おおむね通じます！** もう少しアクセントを意識すると満点です。")
+                        else:
+                            st.warning(f"💪 **判定: {result}%！ 惜しい！** もう一度カタカナ発音を意識して喋ってみましょう。")
+                    elif result == "UNKNOWN_VALUE":
+                        st.error("⚠️ 音声を聞き取れませんでした。マイクに少し近づいて、もう一度ゆっくり発音してください。")
+                    else:
+                        st.error("⚠️ 音声認識でエラーが発生しました。通信環境を確認してください。")
 
     breakdown_list = q.get("breakdown", [])
     if breakdown_list:
