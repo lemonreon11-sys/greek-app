@@ -30,7 +30,7 @@ SECRET_PASSWORD = "0731"
 
 st.set_page_config(page_title="ギリシャ語Duo道場", page_icon="🇬🇷", layout="centered")
 
-# 安全なCSSによる自動翻訳防止 ＆ 単語ポップアップ ＆ 録音UI最適化デザイン
+# 安全なCSSによる自動翻訳防止 ＆ 単語ポップアップ ＆ 録音UI特大正円デザイン
 st.markdown(
     """
     <style>
@@ -116,44 +116,74 @@ st.markdown(
         line-height: 1.5rem;
     }
 
-    /* 🎤 録音エリアの全体レイアウト */
+    /* 🎤 録音エリア（st.audio_input）の正円・特大デザイン */
     [data-testid="stAudioInput"] {
         background-color: #f0f9ff !important;
         border: 2px dashed #0284c7 !important;
-        border-radius: 16px !important;
-        padding: 16px 20px !important;
+        border-radius: 20px !important;
+        padding: 16px !important;
         margin: 12px 0 !important;
-        width: 100% !important;
         box-sizing: border-box !important;
     }
 
-    /* 特大マイクボタン */
-    [data-testid="stAudioInput"] > div:first-child button {
-        min-width: 62px !important;
-        min-height: 62px !important;
-        border-radius: 50% !important;
-        font-size: 1.35rem !important;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.28) !important;
-        cursor: pointer !important;
-        transition: transform 0.12s ease !important;
-        margin: 8px auto !important;
-    }
-    [data-testid="stAudioInput"] > div:first-child button:active {
-        transform: scale(0.92) !important;
+    /* グレーのバー自体を高くして、正円が収まるスペースを確保 */
+    [data-testid="stAudioInput"] > div {
+        min-height: 76px !important;
+        height: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        border-radius: 38px !important;
+        padding: 6px 14px !important;
     }
 
-    /* 録音後のプレーヤー（被り防止） */
+    /* 録音ボタンを潰れない「綺麗な特大の正円（まる）」に固定 */
+    [data-testid="stAudioInput"] button {
+        width: 60px !important;
+        height: 60px !important;
+        min-width: 60px !important;
+        min-height: 60px !important;
+        max-width: 60px !important;
+        max-height: 60px !important;
+        aspect-ratio: 1 / 1 !important;
+        border-radius: 50% !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+        cursor: pointer !important;
+        transition: transform 0.12s ease !important;
+        margin: 0 10px 0 0 !important;
+    }
+    [data-testid="stAudioInput"] button:active {
+        transform: scale(0.92) !important;
+    }
+    [data-testid="stAudioInput"] button svg {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    /* 録音完了後のオーディオプレーヤー内部ボタンは正円指定を安全解除 */
     [data-testid="stAudioInput"] [data-testid="stAudio"] {
         width: 100% !important;
         margin-top: 8px !important;
     }
     [data-testid="stAudioInput"] [data-testid="stAudio"] button {
+        width: auto !important;
+        height: auto !important;
         min-width: auto !important;
         min-height: auto !important;
-        border-radius: 8px !important;
-        transform: none !important;
+        max-width: none !important;
+        max-height: none !important;
+        aspect-ratio: auto !important;
+        border-radius: 6px !important;
         box-shadow: none !important;
         margin: 0 4px !important;
+        transform: none !important;
+    }
+    [data-testid="stAudioInput"] [data-testid="stAudio"] button svg {
+        width: 18px !important;
+        height: 18px !important;
     }
     </style>
     """,
@@ -365,48 +395,6 @@ DATASET = [
         "dish_info": "小鍋（ブリキ）で粉と一緒に煮出す伝統コーヒー。粉が底に沈むのを待って上澄みを飲みます。底の泥状の粉は残すのがマナー。"
     },
     {
-        "greek": "Τσάι",
-        "reading": "チャイ",
-        "meaning": "お茶 / ハーブティー（単語）",
-        "category": "カフェ",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Τσάι", "meaning": "お茶 / 紅茶"}],
-        "dish_info": "ギリシャでは山の自生ハーブを使った「山のお茶（ツァイ・トゥ・ヴヌー）」が健康茶として大人気です。"
-    },
-    {
-        "greek": "Χυμός πορτοκάλι",
-        "reading": "ヒモス ポルトカリ",
-        "meaning": "生搾りオレンジジュース（定番ドリンク）",
-        "category": "カフェ",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [
-            {"word": "Χυμός", "meaning": "ジュース"},
-            {"word": "πορτοκάλι", "meaning": "オレンジ"}
-        ],
-        "dish_info": "ギリシャはオレンジの産地のため、どのカフェでも注文が入ってから生搾りする濃厚で甘いオレンジジュースが格安で飲めます。"
-    },
-    {
-        "greek": "Μπύρα",
-        "reading": "ビラ",
-        "meaning": "ビール（単語）",
-        "category": "カフェ",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Μπύρα", "meaning": "ビール"}],
-        "dish_info": "ギリシャ定番ビールは「Mythos（ミソス）」や「Alfa（アルファ）」。すっきり軽い飲み口で地中海気候にぴったりです。"
-    },
-    {
-        "greek": "Κρασί",
-        "reading": "クラシ",
-        "meaning": "ワイン（単語）",
-        "category": "カフェ",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Κρασί", "meaning": "ワイン"}]
-    },
-    {
         "greek": "Έναν φρέντο εσπρέσο, παρακαλώ.",
         "reading": "エナン フレット エスプレッソ, パラカロ",
         "meaning": "アイスエスプレッソを1杯ください",
@@ -418,8 +406,7 @@ DATASET = [
             {"word": "φρέντο", "meaning": "冷たい（アイス）"},
             {"word": "εσπρέσο,", "meaning": "エスプレッソ"},
             {"word": "παρακαλώ.", "meaning": "お願いします"}
-        ],
-        "dish_info": "エスプレッソを氷と一緒にミキサーで急冷したギリシャ若者の圧倒的1番人気ドリンクです。"
+        ]
     },
     {
         "greek": "Έναν φρέντο καπουτσίνο, παρακαλώ.",
@@ -433,8 +420,7 @@ DATASET = [
             {"word": "φρέντο", "meaning": "冷たい（アイス）"},
             {"word": "καπουτσίνο,", "meaning": "カプチーノ"},
             {"word": "παρακαλώ.", "meaning": "お願いします"}
-        ],
-        "dish_info": "冷たいアイスエスプレッソの上に、冷たいクリーミーなミルクフォームをふんわり乗せた贅沢なアイスカプチーノです。"
+        ]
     },
     {
         "greek": "Για έξω, παρακαλώ.",
@@ -473,11 +459,10 @@ DATASET = [
             {"word": "Πόση", "meaning": "どれくらいの"},
             {"word": "ζάχαρη", "meaning": "砂糖"},
             {"word": "θέλετε;", "meaning": "欲しいですか"}
-        ],
-        "dish_info": "ギリシャでは注文時に砂糖を伝えます（無糖＝スケト、微糖＝メトリオ、甘口＝グリコ）。"
+        ]
     },
 
-    # === レストラン・名物料理（メニュー読解・解説完備） ===
+    # === レストラン・名物料理 ===
     {
         "greek": "Μουσακάς",
         "reading": "ムサカス",
@@ -486,7 +471,7 @@ DATASET = [
         "level": "初級",
         "speaker": "料理",
         "breakdown": [{"word": "Μουσακάς", "meaning": "ムサカ（ギリシャ代表料理）"}],
-        "dish_info": "【ギリシャの国民食】素揚げしたナスとジャガイモ、シナモン等のスパイスを効かせた牛・羊のひき肉を層にし、濃厚なベシャメルソースを乗せてオーブンで焼き上げた伝統料理です。"
+        "dish_info": "【ギリシャの国民食】素揚げしたナスとジャガイモ、スパイスを効かせたひき肉を層にし、濃厚なベシャメルソースを乗せてオーブンで焼き上げた伝統料理です。"
     },
     {
         "greek": "Σουβλάκι",
@@ -506,7 +491,7 @@ DATASET = [
         "level": "初級",
         "speaker": "料理",
         "breakdown": [{"word": "Γύρος", "meaning": "ギロス（定番ストリートフード）"}],
-        "dish_info": "【必食の庶民派グルメ】大きな回転串で炙り焼きにした肉を薄く削ぎ落とし、トマト、玉ねぎ、フライドポテト、ザジキと一緒にピタパンでくるんだ手軽で絶品のサンドイッチです。"
+        "dish_info": "【必食の庶民派グルメ】大きな回転串で炙り焼きにした肉を薄く削ぎ落とし、トマト、玉ねぎ、ポテト、ザジキと一緒にピタパンでくるんだ手軽で絶品のサンドです。"
     },
     {
         "greek": "Χωριάτικη",
@@ -516,7 +501,7 @@ DATASET = [
         "level": "初級",
         "speaker": "料理",
         "breakdown": [{"word": "Χωριάτικη", "meaning": "田舎風サラダ（グリークサラダ）"}],
-        "dish_info": "【タヴェルナの必需品】完熟トマト、きゅうり、赤玉ねぎ、黒オリーブの上に、分厚いフェタチーズがドカンと1枚乗り、オリーブオイルとオレガノがたっぷりかかっています。"
+        "dish_info": "【タヴェルナの必需品】完熟トマト、きゅうり、赤玉ねぎ、オリーブの上に分厚いフェタチーズが丸ごと乗り、オリーブオイルとオレガノがたっぷりかかっています。"
     },
     {
         "greek": "Τζατζίκι",
@@ -525,156 +510,7 @@ DATASET = [
         "category": "レストラン・名物料理",
         "level": "初級",
         "speaker": "料理",
-        "breakdown": [{"word": "Τζατζίκι", "meaning": "ザジキ（ヨーグルトディップ）"}],
-        "dish_info": "【ギリシャ料理の相棒】濃厚なギリシャヨーグルトにすりおろしたキュウリ、にんにく、オリーブオイル、ディルを混ぜたさっぱりディップ。パンやお肉につけて食べます。"
-    },
-    {
-        "greek": "Σαγανάκι",
-        "reading": "サガナキ",
-        "meaning": "サガナキ（表面をカリッと焼いたとろける熱々チーズ）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Σαγανάκι", "meaning": "サガナキ（焼きチーズ）"}],
-        "dish_info": "【お酒のおつまみNo.1】羊や山羊のハードチーズに小麦粉をまぶし、小鍋（サガニ）で表面がきつね色になるまでカリッと焼き上げたもの。熱々にレモンを絞っていただきます。"
-    },
-    {
-        "greek": "Παστίτσιο",
-        "reading": "パスティツィオ",
-        "meaning": "パスティツィオ（筒状パスタとミートソースのギリシャ風グラタン）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Παστίτσιο", "meaning": "パスティツィオ（パスタグラタン）"}],
-        "dish_info": "【家庭料理の王様】太い穴あきパスタの上にスパイスが香るミートソース、一番上に分厚いベシャメルソースを重ねて焼き上げた、ギリシャ版ラザニアのような大満足メニューです。"
-    },
-    {
-        "greek": "Ταραμοσαλάτα",
-        "reading": "タラモサラタ",
-        "meaning": "タラモサラタ（魚卵とオリーブオイルのなめらかペースト）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Ταραμοσαλάτα", "meaning": "タラモサラタ（魚卵ペースト）"}],
-        "dish_info": "【日本のタラモサラダの元祖】ボラの卵などの塩漬け魚卵を、水で戻したパン（またはジャガイモ）、レモン汁、オリーブオイルと練り上げた、パンが進むクリーミーな前菜です。"
-    },
-    {
-        "greek": "Ντολμαδάκια",
-        "reading": "ドルマダキア",
-        "meaning": "ドルマデス（お米とハーブをブドウの葉で包んだ伝統前菜）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Ντολμαδάκια", "meaning": "ブドウの葉包みご飯"}],
-        "dish_info": "【地中海の伝統フィンガーフード】お米、玉ねぎ、ミントやディルなどのハーブを柔らかいブドウの葉で一口サイズにきっちり巻き、オリーブオイルとレモンで煮込んだ料理です。"
-    },
-    {
-        "greek": "Καλαμαράκια",
-        "reading": "カラマラキア",
-        "meaning": "カラマラキア（小イカのサクサクフライ/フリット）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Καλαμαράκια", "meaning": "イカのフライ"}],
-        "dish_info": "【港町・島タヴェルナの定番】小イカに薄く粉をはたいてオリーブオイルでサッと揚げたもの。衣がサクサクで身は柔らかく、冷えた白ワインやビールと最高に合います。"
-    },
-    {
-        "greek": "Χταπόδι",
-        "reading": "フタポディ",
-        "meaning": "タコ / 焼きタコ（ギリシャの海鮮名物）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Χταπόδι", "meaning": "タコ"}],
-        "dish_info": "【海辺のレストラン名物】店の軒先に吊るして天日干ししたタコを炭火で香ばしくグリルしたもの、または赤ワインと酢で柔らかく煮込んだ酢漬け（クシザト）が有名です。"
-    },
-    {
-        "greek": "Σπανακόπιτα",
-        "reading": "スパナコピタ",
-        "meaning": "スパナコピタ（ほうれん草とフェタチーズのサクサクパイ）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Σπανακόπιτα", "meaning": "ほうれん草のパイ"}],
-        "dish_info": "【朝食やおやつの定番】極薄のフィロパイ生地の間に、ほうれん草、フェタチーズ、ハーブを挟んで黄金色に焼き上げたパイ。ベーカリーで熱々を買って歩き食べできます。"
-    },
-    {
-        "greek": "Λουκουμάδες",
-        "reading": "ルクマデス",
-        "meaning": "ルクマデス（揚げたてモチモチのギリシャ風蜂蜜ドーナツ）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Λουκουμάδες", "meaning": "ギリシャ風ドーナツ"}],
-        "dish_info": "【古代から伝わる国民的スイーツ】丸く揚げたひとくちドーナツに、たっぷりの温かいハチミツとシナモン、刻みクルミをかけて食べるサクサク・モチモチの絶品デザートです。"
-    },
-    {
-        "greek": "Μπακλαβάς",
-        "reading": "バクラヴァス",
-        "meaning": "バクラヴァ（パイ生地とナッツの濃厚シロップ菓子）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Μπακλαβάς", "meaning": "バクラヴァ"}],
-        "dish_info": "何層にも重ねた薄いパイ生地の間に刻んだピスタチオやクルミをたっぷり挟み、焼き上がりに甘いシロップを染み込ませた伝統的な濃厚パイ菓子です。"
-    },
-    {
-        "greek": "Ούζο",
-        "reading": "ウーゾ",
-        "meaning": "ウーゾ（水を注ぐと白濁するアニス風味の伝統蒸留酒）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Ούζο", "meaning": "ウーゾ（伝統酒）"}],
-        "dish_info": "【ギリシャを象徴するお酒】薬草アニスが香る透明なお酒ですが、水や氷を入れると化学反応で乳白色に変化します。小皿料理（メゼ）をつまみながらチビチビ飲みます。"
-    },
-    {
-        "greek": "Ρετσίνα",
-        "reading": "レッチーナ",
-        "meaning": "レッチーナ（松脂の独特なアロマが香る伝統白ワイン）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Ρετσίνα", "meaning": "松脂ワイン"}],
-        "dish_info": "古代ギリシャでワイン樽を密閉するために松脂を使ったことから生まれた名物白ワイン。独特のスッキリした松の香りが脂っこい肉や魚料理と絶妙にマッチします。"
-    },
-    {
-        "greek": "Ψωμί",
-        "reading": "プソミ",
-        "meaning": "パン（食事用パン・単語）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Ψωμί", "meaning": "パン"}],
-        "dish_info": "レストランに座ると必ずカゴに入って出てきます。残ったサラダのオリーブオイルやお肉のソースをパンで拭って食べるのがギリシャ流の美味しさです。"
-    },
-    {
-        "greek": "Ψάρι",
-        "reading": "プサリ",
-        "meaning": "魚 / 魚料理（単語）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Ψάρι", "meaning": "魚"}]
-    },
-    {
-        "greek": "Κρέας",
-        "reading": "クレアス",
-        "meaning": "お肉 / 肉料理（単語）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Κρέας", "meaning": "お肉"}]
-    },
-    {
-        "greek": "Ελιές",
-        "reading": "エリエス",
-        "meaning": "オリーブの実（単語）",
-        "category": "レストラン・名物料理",
-        "level": "初級",
-        "speaker": "料理",
-        "breakdown": [{"word": "Ελιές", "meaning": "オリーブ"}],
-        "dish_info": "ギリシャのオリーブ（特に紫黒色のカラマタオリーブ）は肉厚でジューシー。おつまみやサラダに欠かせません。"
+        "breakdown": [{"word": "Τζατζίκι", "meaning": "ザジキ（ヨーグルトディップ）"}]
     },
     {
         "greek": "Τον κατάλογο, παρακαλώ.",
@@ -715,19 +551,6 @@ DATASET = [
         ]
     },
     {
-        "greek": "Όλα ήταν καλά;",
-        "reading": "オラ イタン カラ？",
-        "meaning": "お料理（お味）はいかがでしたか？",
-        "category": "レストラン・名物料理",
-        "level": "上級",
-        "speaker": "スタッフ",
-        "breakdown": [
-            {"word": "Όλα", "meaning": "すべて"},
-            {"word": "ήταν", "meaning": "〜でしたか"},
-            {"word": "καλά;", "meaning": "良かった / 美味しかった"}
-        ]
-    },
-    {
         "greek": "Πληρώνετε μαζί ή χωριστά;",
         "reading": "プリロネテ マズィ イ ホリスタ？",
         "meaning": "お会計はご一緒ですか、別々ですか？",
@@ -742,7 +565,655 @@ DATASET = [
         ]
     },
 
-    # === 街の看板・標識（読解特訓） ===
+    # === 空港・飛行機（超強化） ===
+    {
+        "greek": "Διαβατήριο",
+        "reading": "ディヴァティリオ",
+        "meaning": "パスポート（単語）",
+        "category": "空港・飛行機",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [{"word": "Διαβατήριο", "meaning": "パスポート"}]
+    },
+    {
+        "greek": "Για τουρισμό.",
+        "reading": "ヤ トゥリズモ",
+        "meaning": "観光です（入国審査での目的質問への返答）",
+        "category": "空港・飛行機",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Για", "meaning": "〜のために"},
+            {"word": "τουρισμό.", "meaning": "観光"}
+        ]
+    },
+    {
+        "greek": "Μια θέση στο παράθυρο, παρακαλώ.",
+        "reading": "ミア セスィ スト パラシロ, パラカロ",
+        "meaning": "窓側の席をお願いします（チェックイン時）",
+        "category": "空港・飛行機",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Μια θέση", "meaning": "席を1つ"},
+            {"word": "στο παράθυρο,", "meaning": "窓側の"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Μια θέση στο διάδρομο, παρακαλώ.",
+        "reading": "ミア セスィ スト ディアドロモ, パラカロ",
+        "meaning": "通路側の席をお願いします（チェックイン時）",
+        "category": "空港・飛行機",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Μια θέση", "meaning": "席を1つ"},
+            {"word": "στο διάδρομο,", "meaning": "通路側の"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Πού είναι η πύλη επιβίβασης;",
+        "reading": "プ イネ イ ピリ エピヴィヴァシス？",
+        "meaning": "搭乗ゲートはどこですか？",
+        "category": "空港・飛行機",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Πού", "meaning": "どこ"},
+            {"word": "είναι", "meaning": "ありますか"},
+            {"word": "η πύλη", "meaning": "搭乗口 / ゲート"},
+            {"word": "επιβίβασης;", "meaning": "搭乗の"}
+        ]
+    },
+    {
+        "greek": "Η βαλίτσα μου δεν ήρθε.",
+        "reading": "イ ヴァリツァ ム デン イールセ",
+        "meaning": "私のスーツケースが出てきません（ロストバゲージ窓口）",
+        "category": "空港・飛行機",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Η βαλίτσα", "meaning": "スーツケースが"},
+            {"word": "μου", "meaning": "私の"},
+            {"word": "δεν ήρθε.", "meaning": "届きませんでした/来ませんでした"}
+        ]
+    },
+    {
+        "greek": "Η βαλίτσα μου έχει σπάσει.",
+        "reading": "イ ヴァリツァ ム エヒ スパシ",
+        "meaning": "スーツケースが破損しています（破損申告窓口）",
+        "category": "空港・飛行機",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Η βαλίτσα μου", "meaning": "私のスーツケースが"},
+            {"word": "έχει σπάσει.", "meaning": "壊れています/割れています"}
+        ]
+    },
+    {
+        "greek": "Χάνω την πτήση μετεπιβίβασης!",
+        "reading": "ハノ ティン プティスィ メテピヴィヴァスィス！",
+        "meaning": "乗り継ぎ便に乗り遅れそうです！",
+        "category": "空港・飛行機",
+        "level": "上級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Χάνω", "meaning": "逃す/遅れる"},
+            {"word": "την πτήση", "meaning": "便を"},
+            {"word": "μετεπιβίβασης!", "meaning": "乗り継ぎの"}
+        ]
+    },
+    {
+        "greek": "Το διαβατήριο και την κάρτα επιβίβασης, παρακαλώ.",
+        "reading": "ト ディヴァティリオ ケ ティン カルタ エピヴィヴァシス, パラカロ",
+        "meaning": "パスポートと搭乗券を見せてください",
+        "category": "空港・飛行機",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Το διαβατήριο", "meaning": "パスポート"},
+            {"word": "και", "meaning": "と"},
+            {"word": "την κάρτα", "meaning": "カード / 券"},
+            {"word": "επιβίβασης,", "meaning": "搭乗の"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Βάλτε τη βαλίτσα στη ζυγαριά, παρακαλώ.",
+        "reading": "ヴァルテ ティ ヴァリツァ スティ スィガリア, パラカロ",
+        "meaning": "スーツケースを秤の上に乗せてください",
+        "category": "空港・飛行機",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Βάλτε", "meaning": "乗せてください"},
+            {"word": "τη βαλίτσα", "meaning": "荷物を"},
+            {"word": "στη ζυγαριά,", "meaning": "秤の上に"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Η βαλίτσα σας είναι υπέρβαρη.",
+        "reading": "イ ヴァリツァ サス イネ イペルヴァリ",
+        "meaning": "お荷物が重量オーバー（超過）です（追加料金が必要）",
+        "category": "空港・飛行機",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Η βαλίτσα σας", "meaning": "あなたのお荷物は"},
+            {"word": "είναι", "meaning": "〜です"},
+            {"word": "υπέρβαρη.", "meaning": "重量オーバーの"}
+        ]
+    },
+    {
+        "greek": "Η πύλη επιβίβασης άλλαξε.",
+        "reading": "イ ピリ エピヴィヴァスィス アラクセ",
+        "meaning": "搭乗ゲートが変更になりました（空港アナウンス・係員）",
+        "category": "空港・飛行機",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Η πύλη επιβίβασης", "meaning": "搭乗ゲートが"},
+            {"word": "άλλαξε.", "meaning": "変わりました/変更されました"}
+        ]
+    },
+    {
+        "greek": "ΕΛΕΓΧΟΣ ΔΙΑΒΑΤΗΡΙΩΝ",
+        "reading": "エレンホス ディヴァティリオン",
+        "meaning": "パスポートコントロール / 入国審査（看板）",
+        "category": "空港・飛行機",
+        "level": "初級",
+        "speaker": "看板",
+        "breakdown": [
+            {"word": "ΕΛΕΓΧΟΣ", "meaning": "審査/検査"},
+            {"word": "ΔΙΑΒΑΤΗΡΙΩΝ", "meaning": "パスポートの"}
+        ]
+    },
+    {
+        "greek": "ΤΕΛΩΝΕΙΟ",
+        "reading": "テロニオ",
+        "meaning": "税関（CUSTOMS・看板）",
+        "category": "空港・飛行機",
+        "level": "初級",
+        "speaker": "看板",
+        "breakdown": [{"word": "ΤΕΛΩΝΕΙΟ", "meaning": "税関"}]
+    },
+    {
+        "greek": "ΑΚΥΡΩΘΗΚΕ",
+        "reading": "アキロシケ",
+        "meaning": "欠航 / キャンセル（フライト電光掲示板の赤文字）",
+        "category": "空港・飛行機",
+        "level": "中級",
+        "speaker": "看板",
+        "breakdown": [{"word": "ΑΚΥΡΩΘΗΚΕ", "meaning": "キャンセルされました/欠航"}]
+    },
+    {
+        "greek": "ΚΑΘΥΣΤΕΡΗΣΗ",
+        "reading": "カシスィテリスィ",
+        "meaning": "遅延 / DELAY（フライト電光掲示板の表示）",
+        "category": "空港・飛行機",
+        "level": "中級",
+        "speaker": "看板",
+        "breakdown": [{"word": "ΚΑΘΥΣΤΕΡΗΣΗ", "meaning": "遅延/遅れ"}]
+    },
+
+    # === タクシー・交通（超強化） ===
+    {
+        "greek": "Ταξί",
+        "reading": "タクシ",
+        "meaning": "タクシー（単語）",
+        "category": "タクシー・交通",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [{"word": "Ταξί", "meaning": "タクシー"}]
+    },
+    {
+        "greek": "Στο αεροδρόμιο, παρακαλώ.",
+        "reading": "スト アエロドロミオ, パラカロ",
+        "meaning": "空港までお願いします",
+        "category": "タクシー・交通",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Στο", "meaning": "〜まで / 〜へ"},
+            {"word": "αεροδρόμιο,", "meaning": "空港"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Στο ξεノδοχείο, παρακαλώ.",
+        "greek": "Στο ξενοδοχείο, παρακαλώ.",
+        "reading": "スト クセノドヒオ, パラカロ",
+        "meaning": "ホテルまでお願いします",
+        "category": "タクシー・交通",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Στο", "meaning": "〜まで / 〜へ"},
+            {"word": "ξενοδοχείο,", "meaning": "ホテル"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Σταマτήστε εδώ, παρακαλώ.",
+        "greek": "Σταματήστε εδώ, παρακαλώ.",
+        "reading": "スタマティステ エド, パラカロ",
+        "meaning": "ここで止めてください",
+        "category": "タクシー・交通",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Σταματήστε", "meaning": "止めてください"},
+            {"word": "εδώ,", "meaning": "ここで"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Περίπου πόσο θα κοστίσει;",
+        "reading": "ペリプ ポソ サ コスティーシ？",
+        "meaning": "そこまで大体いくらかかりますか？（ぼったくり防止）",
+        "category": "タクシー・交通",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Περίπου", "meaning": "大体/およそ"},
+            {"word": "πόσο", "meaning": "いくら"},
+            {"word": "θα κοστίσει;", "meaning": "費用がかかりますか"}
+        ]
+    },
+    {
+        "greek": "Είναι πολύ ακριβό!",
+        "reading": "イネ ポリ アクリヴォ！",
+        "meaning": "高すぎます！（不当な請求への抗議）",
+        "category": "タクシー・交通",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Είναι", "meaning": "〜です"},
+            {"word": "πολύ", "meaning": "とても"},
+            {"word": "ακριβό!", "meaning": "高額な/高い"}
+        ]
+    },
+    {
+        "greek": "Βιάζομαι, έχω πτήση!",
+        "reading": "ヴィアゾメ, エホ プティスィ！",
+        "meaning": "急いでいます、飛行機に間に合わなくなります！",
+        "category": "タクシー・交通",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Βιάζομαι,", "meaning": "急いでいます"},
+            {"word": "έχω", "meaning": "持っています"},
+            {"word": "πτήση!", "meaning": "フライトを"}
+        ]
+    },
+    {
+        "greek": "Ανοίξτε το κλιματιστικό, παρακαλώ.",
+        "reading": "アニクステ ト クリマティスティコ, パラカロ",
+        "meaning": "エアコンをつけてもらえますか？",
+        "category": "タクシー・交通",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Ανοίξτε", "meaning": "つけてください/開けて"},
+            {"word": "το κλιματιστικό,", "meaning": "エアコンを"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Κλείστε το κλιματιστικό, παρακαλώ.",
+        "reading": "クリステ ト クリマティスティコ, パラカロ",
+        "meaning": "エアコンを消してください（寒すぎる時）",
+        "category": "タクシー・交通",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Κλείστε", "meaning": "消してください/閉めて"},
+            {"word": "το κλιματιστικό,", "meaning": "エアコンを"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Στη γωνία, παρακαλώ.",
+        "reading": "スティ ゴニア, パラカロ",
+        "meaning": "あの角のところで降ろしてください",
+        "category": "タクシー・交通",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Στη γωνία,", "meaning": "角のところで"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Τα ρέスタ δεν είναι σωστά.",
+        "greek": "Τα ρέστα δεν είναι σωστά.",
+        "reading": "タ レスタ デン イネ ソスタ",
+        "meaning": "おつりが合っていません / 足りません",
+        "category": "タクシー・交通",
+        "level": "上級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Τα ρέστα", "meaning": "おつりが"},
+            {"word": "δεν είναι", "meaning": "〜ではない"},
+            {"word": "σωστά.", "meaning": "正しい"}
+        ]
+    },
+    {
+        "greek": "Ξέχασα κάτι στο ταξί!",
+        "reading": "クセハサ カティ スト タクシ！",
+        "meaning": "タクシーの中に忘れ物をしてしまいました！",
+        "category": "タクシー・交通",
+        "level": "上級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Ξέχασα", "meaning": "忘れました"},
+            {"word": "κάτι", "meaning": "何かを"},
+            {"word": "στο ταξί!", "meaning": "タクシーの中に"}
+        ]
+    },
+    {
+        "greek": "Βάλτε το ταξίμετρο, παρακαλώ.",
+        "reading": "ヴァルテ ト タクシメトロ, パラカロ",
+        "meaning": "メーターを回してください",
+        "category": "タクシー・交通",
+        "level": "上級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Βάλτε", "meaning": "回してください / 入れて"},
+            {"word": "το", "meaning": "その"},
+            {"word": "ταξίμετρο,", "meaning": "メーター"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Μπορώ να πληρώσω με κάρτα;",
+        "reading": "ボロ ナ プリロソ メ カルタ？",
+        "meaning": "クレジットカードで支払えますか？",
+        "category": "タクシー・交通",
+        "level": "上級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Μπορώ", "meaning": "〜できますか"},
+            {"word": "να", "meaning": "〜すること"},
+            {"word": "πληρώσω", "meaning": "支払う"},
+            {"word": "με", "meaning": "〜で"},
+            {"word": "κάρτα;", "meaning": "カード"}
+        ]
+    },
+    {
+        "greek": "Πού θέλετε να πάτε;",
+        "reading": "プ セレテ ナ パテ？",
+        "meaning": "どちらまで行かれますか？（運転手の声かけ）",
+        "category": "タクシー・交通",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Πού", "meaning": "どこへ"},
+            {"word": "θέλετε", "meaning": "行きたいですか"},
+            {"word": "να", "meaning": "〜すること"},
+            {"word": "πάτε;", "meaning": "行く"}
+        ]
+    },
+    {
+        "greek": "Έχει πολλή κίνηση.",
+        "reading": "エヒ ポリ キニスィ",
+        "meaning": "道路がひどく渋滞しています（運転手のセリフ）",
+        "category": "タクシー・交通",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Έχει", "meaning": "あります"},
+            {"word": "πολλή", "meaning": "たくさんの"},
+            {"word": "κίνηση.", "meaning": "交通（渋滞）"}
+        ]
+    },
+    {
+        "greek": "Υπάρχουν διόδια.",
+        "reading": "イパルフン ディオディア",
+        "meaning": "有料道路（高速料金）が加算されます",
+        "category": "タクシー・交通",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Υπάρχουν", "meaning": "あります"},
+            {"word": "διόδια.", "meaning": "通行料金/有料道路代"}
+        ]
+    },
+
+    # === ホテル・宿泊（超強化） ===
+    {
+        "greek": "ΥΠΟΔΟΧΗ",
+        "reading": "イポドヒ",
+        "meaning": "フロント / レセプション（ホテルの案内看板）",
+        "category": "ホテル",
+        "level": "初級",
+        "speaker": "看板",
+        "breakdown": [{"word": "ΥΠΟΔΟΧΗ", "meaning": "レセプション / フロント"}]
+    },
+    {
+        "greek": "Το κλειδί",
+        "reading": "ト クリディ",
+        "meaning": "部屋の鍵（単語）",
+        "category": "ホテル",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [{"word": "Το κλειδί", "meaning": "鍵"}]
+    },
+    {
+        "greek": "Το κλειδί, παρακαλώ.",
+        "reading": "ト クリディ, パラカロ",
+        "meaning": "部屋の鍵をください",
+        "category": "ホテル",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Το κλειδί,", "meaning": "鍵を"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Έχω κάνει κράτηση.",
+        "reading": "エホ カニ クラティスィ",
+        "meaning": "予約をしています（チェックイン時）",
+        "category": "ホテル",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Έχω κάνει", "meaning": "しました"},
+            {"word": "κράτηση.", "meaning": "予約を"}
+        ]
+    },
+    {
+        "greek": "Ποιος είναι ο κωδικός του Wi-Fi;",
+        "reading": "ピオス イネ オ コディコス トゥ ワイファイ？",
+        "meaning": "Wi-Fiのパスワードは何ですか？",
+        "category": "ホテル",
+        "level": "初級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Ποιος είναι", "meaning": "何ですか"},
+            {"word": "ο κωδικός", "meaning": "暗証番号/パスワード"},
+            {"word": "του Wi-Fi;", "meaning": "Wi-Fiの"}
+        ]
+    },
+    {
+        "greek": "Μπορείτε να κρατήσετε τις βαλίτσες μου;",
+        "reading": "ボリテ ナ クラティセテ ティス ヴァリツェス ム？",
+        "meaning": "荷物を預かってもらえますか？（チェックイン前・後）",
+        "category": "ホテル",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Μπορείτε", "meaning": "〜できますか"},
+            {"word": "να κρατήσετε", "meaning": "預かる/保管する"},
+            {"word": "τις βαλίτσες μου;", "meaning": "私のスーツケースを"}
+        ]
+    },
+    {
+        "greek": "Δεν έχει ζεστό νερό.",
+        "reading": "デン エヒ ゼスト ネロ",
+        "meaning": "お湯が出ません（シャワートラブル）",
+        "category": "ホテル",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Δεν έχει", "meaning": "ありません/出ません"},
+            {"word": "ζεστό", "meaning": "温かい"},
+            {"word": "νερό.", "meaning": "水（お湯）"}
+        ]
+    },
+    {
+        "greek": "Το κλιματιστικό δεν δουλεύει.",
+        "reading": "ト クリマティスティコ デン ドゥレヴィ",
+        "meaning": "エアコンが故障していて動きません",
+        "category": "ホテル",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Το κλιματιστικό", "meaning": "エアコンが"},
+            {"word": "δεν δουλεύει.", "meaning": "動かない/機能しない"}
+        ]
+    },
+    {
+        "greek": "Η τουαλέτα έχει βουλώσει.",
+        "reading": "イ トゥアレタ エヒ ヴロシ",
+        "meaning": "トイレが詰まって流れません",
+        "category": "ホテル",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Η τουαλέτα", "meaning": "トイレが"},
+            {"word": "έχει βουλώσει.", "meaning": "詰まっています"}
+        ]
+    },
+    {
+        "greek": "Μια πετσέτα ακόμα, παρακαλώ.",
+        "reading": "ミア ペチェタ アコマ, パラカロ",
+        "meaning": "タオルをもう1枚いただけますか？",
+        "category": "ホテル",
+        "level": "中級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Μια πετσέτα", "meaning": "タオルを1枚"},
+            {"word": "ακόμα,", "meaning": "もう/さらに"},
+            {"word": "παρακαλώ.", "meaning": "お願いします"}
+        ]
+    },
+    {
+        "greek": "Το διπλανό δωμάτιο έχει πολύ θόρυβο.",
+        "reading": "ト ディプラノ ドマティオ エヒ ポリ ソリヴォ",
+        "meaning": "隣の部屋がとても騒がしい（うるさい）です",
+        "category": "ホテル",
+        "level": "上級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Το διπλανό δωμάτιο", "meaning": "隣の部屋が"},
+            {"word": "έχει", "meaning": "あります"},
+            {"word": "πολύ θόρυβο.", "meaning": "とても大きな騒音が"}
+        ]
+    },
+    {
+        "greek": "Μπορώ να κάνω αργότερα check-out;",
+        "reading": "ボロ ナ カノ アルゴテラ チェックアウト？",
+        "meaning": "レイトチェックアウト（遅めの出発）は可能ですか？",
+        "category": "ホテル",
+        "level": "上級",
+        "speaker": "自分",
+        "breakdown": [
+            {"word": "Μπορώ", "meaning": "〜できますか"},
+            {"word": "να κάνω", "meaning": "する"},
+            {"word": "αργότερα", "meaning": "より遅くに"},
+            {"word": "check-out;", "meaning": "チェックアウト"}
+        ]
+    },
+    {
+        "greek": "Σε ποιο όνομα είναι η κράτηση;",
+        "reading": "セ ピオ オノマ イネ イ クラティスィ？",
+        "meaning": "ご予約のお名前は何様でしょうか？",
+        "category": "ホテル",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Σε ποιο", "meaning": "どの / 何の"},
+            {"word": "όνομα", "meaning": "名前"},
+            {"word": "είναι", "meaning": "〜ですか"},
+            {"word": "η κράτηση;", "meaning": "ご予約"}
+        ]
+    },
+    {
+        "greek": "Το πρωινό είναι από τις εφτά μέχρι τις δέκα.",
+        "reading": "ト プロイノ イネ アポ ティス エフタ メフリ ティス デカ",
+        "meaning": "ご朝食は7時から10時までです",
+        "category": "ホテル",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Το πρωινό", "meaning": "朝食は"},
+            {"word": "είναι", "meaning": "〜です"},
+            {"word": "από τις εφτά", "meaning": "7時から"},
+            {"word": "μέχρι τις δέκα.", "meaning": "10時まで"}
+        ]
+    },
+    {
+        "greek": "Το δωμάτιό σας είναι στον τρίτο όροφο.",
+        "reading": "ト ドマティオ サス イネ ストン トリート オロフォ",
+        "meaning": "お部屋は3階でございます",
+        "category": "ホテル",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Το δωμάτιό σας", "meaning": "あなたのお部屋は"},
+            {"word": "είναι", "meaning": "あります"},
+            {"word": "στον τρίτο", "meaning": "3階の"},
+            {"word": "όροφο.", "meaning": "フロアに"}
+        ]
+    },
+    {
+        "greek": "Πρέπει να πληρώσετε το φόρο διαμονής.",
+        "reading": "プレピ ナ プリロセテ ト フォロ ディアモニス",
+        "meaning": "宿泊税（観光税）のお支払いが必要です（チェックイン時）",
+        "category": "ホテル",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Πρέπει να", "meaning": "〜しなければならない"},
+            {"word": "πληρώσετε", "meaning": "支払う"},
+            {"word": "το φόρο", "meaning": "税金を"},
+            {"word": "διαμονής.", "meaning": "宿泊の"}
+        ]
+    },
+    {
+        "greek": "Το check-out είναι στις έντεκα το πρωί.",
+        "reading": "ト チェックアウト イネ スティス エンテカ ト プロイ",
+        "meaning": "チェックアウトは午前11時となっております",
+        "category": "ホテル",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Το check-out", "meaning": "チェックアウトは"},
+            {"word": "είναι", "meaning": "〜です"},
+            {"word": "στις έντεκα", "meaning": "11時に"},
+            {"word": "το πρωί.", "meaning": "午前（朝）の"}
+        ]
+    },
+    {
+        "greek": "Χρειαζόμαστε μια πιστωτική κάρτα για εγγύηση.",
+        "reading": "フリアゾマステ ミア ピストティキ カルタ ヤ エンギイスィ",
+        "meaning": "保証（デポジット）用のクレジットカードをお預かりします",
+        "category": "ホテル",
+        "level": "上級",
+        "speaker": "スタッフ",
+        "breakdown": [
+            {"word": "Χρειαζόμαστε", "meaning": "必要です"},
+            {"word": "μια πιστωτική κάρτα", "meaning": "クレジットカードが"},
+            {"word": "για εγγύηση.", "meaning": "保証（デポジット）のために"}
+        ]
+    },
+
+    # === 街の看板・標識 ===
     {
         "greek": "ΕΞΟΔΟΣ",
         "reading": "エグソドス",
@@ -787,434 +1258,6 @@ DATASET = [
         "level": "初級",
         "speaker": "看板",
         "breakdown": [{"word": "ΤΑΜΕΙΟ", "meaning": "レジ / キャッシャー"}]
-    },
-    {
-        "greek": "ΕΚΠΤΩΣΕΙΣ",
-        "reading": "エクプトシス",
-        "meaning": "セール / 割引中 / SALE（売店の張り紙）",
-        "category": "街の看板・標識",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΕΚΠΤΩΣΕΙΣ", "meaning": "セール / 値引き"}]
-    },
-    {
-        "greek": "ΑΝΔΡΩΝ",
-        "reading": "アンドロン",
-        "meaning": "男性用（トイレの扉の標識）",
-        "category": "街の看板・標識",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΑΝΔΡΩΝ", "meaning": "男性用（MEN）"}]
-    },
-    {
-        "greek": "ΓΥΝΑΙΚΩΝ",
-        "reading": "イネコン",
-        "meaning": "女性用（トイレの扉の標識）",
-        "category": "街の看板・標識",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΓΥΝΑΙΚΩΝ", "meaning": "女性用（WOMEN）"}]
-    },
-    {
-        "greek": "ΦΑΡΜΑΚΕΙΟ",
-        "reading": "ファルマキオ",
-        "meaning": "薬局（街中の緑色の十字マーク看板）",
-        "category": "街の看板・標識",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΦΑΡΜΑΚΕΙΟ", "meaning": "薬局（PHARMACY）"}]
-    },
-    {
-        "greek": "ΣΤΑΣΗ",
-        "reading": "スタスィ",
-        "meaning": "停留所 / バス停（道路脇の標識）",
-        "category": "街の看板・標識",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΣΤΑΣΗ", "meaning": "停留所（BUS STOP）"}]
-    },
-    {
-        "greek": "ΠΙΑΤΣΑ ΤΑΞΙ",
-        "reading": "ピアツァ タクシ",
-        "meaning": "タクシー乗り場（広場や駅前の標識）",
-        "category": "街の看板・標識",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [
-            {"word": "ΠΙΑΤΣΑ", "meaning": "乗り場 / 広場"},
-            {"word": "ΤΑΞΙ", "meaning": "タクシー"}
-        ]
-    },
-    {
-        "greek": "ΜΗ ΚΑΠΝΙΖΕΤΕ",
-        "reading": "ミ カプニゼテ",
-        "meaning": "禁煙（店内や公共スペースの掲示）",
-        "category": "街の看板・標識",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΜΗ ΚΑΠΝΙΖΕΤΕ", "meaning": "タバコは吸わないでください（禁煙）"}]
-    },
-    {
-        "greek": "ΔΩΡΕΑΝ WI-FI",
-        "reading": "ドレアン ワイファイ",
-        "meaning": "無料Wi-Fiあり（カフェ等の窓のステッカー）",
-        "category": "街の看板・標識",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [
-            {"word": "ΔΩΡΕΑΝ", "meaning": "無料の"},
-            {"word": "WI-FI", "meaning": "Wi-Fi"}
-        ]
-    },
-    {
-        "greek": "ΛΙΜΑΝΙ",
-        "reading": "リマニ",
-        "meaning": "港 / フェリー乗り場（島への船が出る港の看板）",
-        "category": "街の看板・標識",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΛΙΜΑΝΙ", "meaning": "港（PORT）"}]
-    },
-    {
-        "greek": "ΠΛΗΡΟΦΟΡΙΕΣ",
-        "reading": "プリロフォリエス",
-        "meaning": "案内所 / インフォメーション（駅・空港の窓口）",
-        "category": "街の看板・標識",
-        "level": "中級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΠΛΗΡΟΦΟΡΙΕΣ", "meaning": "案内所（INFORMATION）"}]
-    },
-    {
-        "greek": "ΑΠΑΓΟΡΕΥΕΤΑΙ",
-        "reading": "アパゴレヴェテ",
-        "meaning": "禁止 / 立ち入り禁止（警告看板）",
-        "category": "街の看板・標識",
-        "level": "中級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΑΠΑΓΟΡΕΥΕΤΑΙ", "meaning": "禁止されています（FORBIDDEN）"}]
-    },
-
-    # === タクシー・交通 ===
-    {
-        "greek": "Ταξί",
-        "reading": "タクシ",
-        "meaning": "タクシー（単語）",
-        "category": "タクシー・交通",
-        "level": "初級",
-        "speaker": "自分",
-        "breakdown": [{"word": "Ταξί", "meaning": "タクシー"}]
-    },
-    {
-        "greek": "Εισιτήριο",
-        "reading": "イシティリオ",
-        "meaning": "切符 / 乗車券 / チケット（単語）",
-        "category": "タクシー・交通",
-        "level": "初級",
-        "speaker": "自分",
-        "breakdown": [{"word": "Εισιτήριο", "meaning": "切符 / チケット"}]
-    },
-    {
-        "greek": "Λεωφορείο",
-        "reading": "レオフォリオ",
-        "meaning": "バス（単語）",
-        "category": "タクシー・交通",
-        "level": "初級",
-        "speaker": "自分",
-        "breakdown": [{"word": "Λεωφορείο", "meaning": "バス"}]
-    },
-    {
-        "greek": "Μετρό",
-        "reading": "メトロ",
-        "meaning": "地下鉄（単語）",
-        "category": "タクシー・交通",
-        "level": "初級",
-        "speaker": "自分",
-        "breakdown": [{"word": "Μετρό", "meaning": "地下鉄"}]
-    },
-    {
-        "greek": "Στο αεροδρόμιο, παρακαλώ.",
-        "reading": "スト アエロドロミオ, パラカロ",
-        "meaning": "空港までお願いします",
-        "category": "タクシー・交通",
-        "level": "初級",
-        "speaker": "自分",
-        "breakdown": [
-            {"word": "Στο", "meaning": "〜まで / 〜へ"},
-            {"word": "αεροδρόμιο,", "meaning": "空港"},
-            {"word": "παρακαλώ.", "meaning": "お願いします"}
-        ]
-    },
-    {
-        "greek": "Στο ξενοδοχείο, παρακαλώ.",
-        "reading": "スト クセノドヒオ, パラカロ",
-        "meaning": "ホテルまでお願いします",
-        "category": "タクシー・交通",
-        "level": "中級",
-        "speaker": "自分",
-        "breakdown": [
-            {"word": "Στο", "meaning": "〜まで / 〜へ"},
-            {"word": "ξενοδοχείο,", "meaning": "ホテル"},
-            {"word": "παρακαλώ.", "meaning": "お願いします"}
-        ]
-    },
-    {
-        "greek": "Σταματήστε εδώ, παρακαλώ.",
-        "reading": "スタマティステ エド, パラカロ",
-        "meaning": "ここで止めてください",
-        "category": "タクシー・交通",
-        "level": "中級",
-        "speaker": "自分",
-        "breakdown": [
-            {"word": "Σταματήστε", "meaning": "止めてください"},
-            {"word": "εδώ,", "meaning": "ここで"},
-            {"word": "παρακαλώ.", "meaning": "お願いします"}
-        ]
-    },
-    {
-        "greek": "Πού θέλετε να πάτε;",
-        "reading": "プ セレテ ナ パテ？",
-        "meaning": "どちらまで行かれますか？（運転手の声かけ）",
-        "category": "タクシー・交通",
-        "level": "上級",
-        "speaker": "スタッフ",
-        "breakdown": [
-            {"word": "Πού", "meaning": "どこへ"},
-            {"word": "θέλετε", "meaning": "行きたいですか"},
-            {"word": "να", "meaning": "〜すること"},
-            {"word": "πάτε;", "meaning": "行く"}
-        ]
-    },
-    {
-        "greek": "Έχετε βαλίτσες για το πορτμπαγκάζ;",
-        "reading": "エヘテ ヴァリツェス ヤ ト ポルトバンガズ？",
-        "meaning": "トランクに入れるお荷物はありますか？",
-        "category": "タクシー・交通",
-        "level": "上級",
-        "speaker": "スタッフ",
-        "breakdown": [
-            {"word": "Έχετε", "meaning": "ありますか"},
-            {"word": "βαλίτσες", "meaning": "スーツケース/荷物"},
-            {"word": "για το", "meaning": "〜用の"},
-            {"word": "πορτμπαγκάζ;", "meaning": "トランク"}
-        ]
-    },
-    {
-        "greek": "Μόνο μετρητά, παρακαλώ.",
-        "reading": "モノ メトリタ, パラカロ",
-        "meaning": "現金のみのお支払いになります",
-        "category": "タクシー・交通",
-        "level": "上級",
-        "speaker": "スタッフ",
-        "breakdown": [
-            {"word": "Μόνο", "meaning": "〜だけ（のみ）"},
-            {"word": "μετρητά,", "meaning": "現金"},
-            {"word": "παρακαλώ.", "meaning": "お願いします"}
-        ]
-    },
-    {
-        "greek": "Βάλτε το ταξίμετρο, παρακαλώ.",
-        "reading": "ヴァルテ ト タクシメトロ, パラカロ",
-        "meaning": "メーターを回してください",
-        "category": "タクシー・交通",
-        "level": "上級",
-        "speaker": "自分",
-        "breakdown": [
-            {"word": "Βάλτε", "meaning": "回してください / 入れて"},
-            {"word": "το", "meaning": "その"},
-            {"word": "ταξίμετρο,", "meaning": "メーター"},
-            {"word": "παρακαλώ.", "meaning": "お願いします"}
-        ]
-    },
-    {
-        "greek": "Μπορώ να πληρώσω με κάρτα;",
-        "reading": "ボロ ナ プリロソ メ カルタ？",
-        "meaning": "クレジットカードで支払えますか？",
-        "category": "タクシー・交通",
-        "level": "上級",
-        "speaker": "自分",
-        "breakdown": [
-            {"word": "Μπορώ", "meaning": "〜できますか"},
-            {"word": "να", "meaning": "〜すること"},
-            {"word": "πληρώσω", "meaning": "支払う"},
-            {"word": "με", "meaning": "〜で"},
-            {"word": "κάρτα;", "meaning": "カード"}
-        ]
-    },
-
-    # === 空港・飛行機 ===
-    {
-        "greek": "ΑΦΙΞΕΙΣ",
-        "reading": "アフィクシス",
-        "meaning": "到着ロビー / 到着（空港の電光掲示看板）",
-        "category": "空港・飛行機",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΑΦΙΞΕΙΣ", "meaning": "到着（ARRIVALS）"}]
-    },
-    {
-        "greek": "ΑΝΑΧΩΡΗΣΕΙΣ",
-        "reading": "アナホリシス",
-        "meaning": "出発ロビー / 出発（空港の電光掲示看板）",
-        "category": "空港・飛行機",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΑΝΑΧΩΡΗΣΕΙΣ", "meaning": "出発（DEPARTURES）"}]
-    },
-    {
-        "greek": "ΑΠΟΣΚΕΥΕΣ",
-        "reading": "アポスケヴェス",
-        "meaning": "手荷物受取所（バゲッジクレーム看板）",
-        "category": "空港・飛行機",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [{"word": "ΑΠΟΣΚΕΥΕΣ", "meaning": "手荷物（BAGGAGE）"}]
-    },
-    {
-        "greek": "Διαβατήριο",
-        "reading": "ディヴァティリオ",
-        "meaning": "パスポート（単語）",
-        "category": "空港・飛行機",
-        "level": "初級",
-        "speaker": "自分",
-        "breakdown": [{"word": "Διαβατήριο", "meaning": "パスポート"}]
-    },
-    {
-        "greek": "Πού είναι η πύλη επιβίβασης;",
-        "reading": "プ イネ イ ピリ エピヴィヴァシス？",
-        "meaning": "搭乗ゲートはどこですか？",
-        "category": "空港・飛行機",
-        "level": "中級",
-        "speaker": "自分",
-        "breakdown": [
-            {"word": "Πού", "meaning": "どこ"},
-            {"word": "είναι", "meaning": "ありますか"},
-            {"word": "η πύλη", "meaning": "搭乗口 / ゲート"},
-            {"word": "επιβίβασης;", "meaning": "搭乗の"}
-        ]
-    },
-    {
-        "greek": "Το διαβατήριο και την κάρτα επιβίβασης, παρακαλώ.",
-        "reading": "ト ディヴァティリオ ケ ティン カルタ エピヴィヴァシス, パラカロ",
-        "meaning": "パスポートと搭乗券を見せてください",
-        "category": "空港・飛行機",
-        "level": "上級",
-        "speaker": "スタッフ",
-        "breakdown": [
-            {"word": "Το διαβατήριο", "meaning": "パスポート"},
-            {"word": "και", "meaning": "と"},
-            {"word": "την κάρτα", "meaning": "カード / 券"},
-            {"word": "επιβίβασης,", "meaning": "搭乗の"},
-            {"word": "παρακαλώ.", "meaning": "お願いします"}
-        ]
-    },
-    {
-        "greek": "Βάλτε τη βαλίτσα στη ζυγαριά, παρακαλώ.",
-        "reading": "ヴァルテ ティ ヴァリツァ スティ スィガリア, パラカロ",
-        "meaning": "スーツケースを秤の上に乗せてください",
-        "category": "空港・飛行機",
-        "level": "上級",
-        "speaker": "スタッフ",
-        "breakdown": [
-            {"word": "Βάλτε", "meaning": "乗せてください"},
-            {"word": "τη βαλίτσα", "meaning": "荷物を"},
-            {"word": "στη ζυγαριά,", "meaning": "秤の上に"},
-            {"word": "παρακαλώ.", "meaning": "お願いします"}
-        ]
-    },
-
-    # === ホテル・宿泊 ===
-    {
-        "greek": "Το κλειδί",
-        "reading": "ト クリディ",
-        "meaning": "部屋の鍵（単語）",
-        "category": "ホテル",
-        "level": "初級",
-        "speaker": "自分",
-        "breakdown": [{"word": "Το κλειδί", "meaning": "鍵"}]
-    },
-    {
-        "greek": "Δωμάτιο",
-        "reading": "ドマティオ",
-        "meaning": "部屋 / ルーム（単語）",
-        "category": "ホテル",
-        "level": "初級",
-        "speaker": "自分",
-        "breakdown": [{"word": "Δωμάτιο", "meaning": "部屋"}]
-    },
-    {
-        "greek": "Ασανσέρ",
-        "reading": "アサンセル",
-        "meaning": "エレベーター（単語）",
-        "category": "ホテル",
-        "level": "初級",
-        "speaker": "看板",
-        "breakdown": [{"word": "Ασανσέρ", "meaning": "エレベーター"}]
-    },
-    {
-        "greek": "Το κλειδί, παρακαλώ.",
-        "reading": "ト クリディ, パラカロ",
-        "meaning": "部屋の鍵をください",
-        "category": "ホテル",
-        "level": "初級",
-        "speaker": "自分",
-        "breakdown": [
-            {"word": "Το κλειδί,", "meaning": "鍵を"},
-            {"word": "παρακαλώ.", "meaning": "お願いします"}
-        ]
-    },
-    {
-        "greek": "Έχω κάνει κράτηση.",
-        "reading": "エホ カニ クラティスィ",
-        "meaning": "予約をしています（チェックイン時）",
-        "category": "ホテル",
-        "level": "中級",
-        "speaker": "自分",
-        "breakdown": [
-            {"word": "Έχω κάνει", "meaning": "しました"},
-            {"word": "κράτηση.", "meaning": "予約を"}
-        ]
-    },
-    {
-        "greek": "Σε ποιο όνομα είναι η κράτηση;",
-        "reading": "セ ピオ オノマ イネ イ クラティスィ？",
-        "meaning": "ご予約のお名前は何様でしょうか？",
-        "category": "ホテル",
-        "level": "上級",
-        "speaker": "スタッフ",
-        "breakdown": [
-            {"word": "Σε ποιο", "meaning": "どの / 何の"},
-            {"word": "όνομα", "meaning": "名前"},
-            {"word": "είναι", "meaning": "〜ですか"},
-            {"word": "η κράτηση;", "meaning": "ご予約"}
-        ]
-    },
-    {
-        "greek": "Το πρωινό είναι από τις εφτά μέχρι τις δέκα.",
-        "reading": "ト プロイノ イネ アポ ティス エフタ メフリ ティス デカ",
-        "meaning": "ご朝食は7時から10時までです",
-        "category": "ホテル",
-        "level": "上級",
-        "speaker": "スタッフ",
-        "breakdown": [
-            {"word": "Το πρωινό", "meaning": "朝食は"},
-            {"word": "είναι", "meaning": "〜です"},
-            {"word": "από τις εφτά", "meaning": "7時から"},
-            {"word": "μέχρι τις δέκα.", "meaning": "10時まで"}
-        ]
-    },
-    {
-        "greek": "Το δωμάτιό σας είναι στον τρίτο όροφο.",
-        "reading": "ト ドマティオ サス イネ ストン トリート オロフォ",
-        "meaning": "お部屋は3階でございます",
-        "category": "ホテル",
-        "level": "上級",
-        "speaker": "スタッフ",
-        "breakdown": [
-            {"word": "Το δωμάτιό σας", "meaning": "あなたのお部屋は"},
-            {"word": "είναι", "meaning": "あります"},
-            {"word": "στον τρίτο", "meaning": "3階の"},
-            {"word": "όροφο.", "meaning": "フロアに"}
-        ]
     },
 
     # === 売店・スーパー・買い物 ===
@@ -1277,18 +1320,6 @@ DATASET = [
         ]
     },
     {
-        "greek": "Έχετε ψιλά;",
-        "reading": "エヘテ プシラ？",
-        "meaning": "細かい小銭はお持ちですか？",
-        "category": "売店・買い物",
-        "level": "上級",
-        "speaker": "スタッフ",
-        "breakdown": [
-            {"word": "Έχετε", "meaning": "お持ちですか"},
-            {"word": "ψιλά;", "meaning": "細かい小銭"}
-        ]
-    },
-    {
         "greek": "Μπορείτε να κάνετε καλύτερη τιμή;",
         "reading": "ボリテ ナ カネテ カリテリ ティミ？",
         "meaning": "少しおまけ（値引き）してもらえませんか？",
@@ -1329,19 +1360,6 @@ DATASET = [
             {"word": "είναι", "meaning": "ありますか"},
             {"word": "ο σταθμός", "meaning": "駅"},
             {"word": "του μετρό;", "meaning": "地下鉄の"}
-        ]
-    },
-    {
-        "greek": "Πού είναι το ΑΤΜ;",
-        "reading": "プ イネ ト アテエミ？",
-        "meaning": "ATMはどこにありますか？",
-        "category": "施設・道案内",
-        "level": "初級",
-        "speaker": "自分",
-        "breakdown": [
-            {"word": "Πού", "meaning": "どこ"},
-            {"word": "είναι", "meaning": "ありますか"},
-            {"word": "το ΑΤΜ;", "meaning": "ATM"}
         ]
     },
     {
@@ -1481,7 +1499,6 @@ def greek_to_katakana(text):
         return ""
     t = text.lower()
 
-    # 二重母音・子音連結
     subs = [
         ('γεια', 'ヤ'), ('γει', 'イェ'), ('για', 'ヤ'), ('γιο', 'ヨ'), ('γιου', 'ユ'),
         ('μπ', 'b'), ('ντ', 'd'), ('γκ', 'g'), ('γγ', 'ng'),
@@ -1626,13 +1643,13 @@ st.sidebar.header("🎯 学習モード設定")
 
 categories = [
     "全場面（ランダム特訓）",
+    "空港・飛行機",
+    "タクシー・交通",
+    "ホテル",
     "基本挨拶",
     "カフェ",
     "レストラン・名物料理",
     "街の看板・標識",
-    "タクシー・交通",
-    "空港・飛行機",
-    "ホテル",
     "売店・買い物",
     "施設・道案内",
     "緊急・トラブル",
@@ -1667,14 +1684,14 @@ if st.sidebar.button("🔒 ログアウト", use_container_width=True, key="logo
 # 7. 山札方式 ＆ 親和性ブレンドによる高ランダム出題ロジック
 # -------------------------------------------------------------
 RELATED_CATEGORIES = {
+    "空港・飛行機": ["空港・飛行機", "タクシー・交通", "施設・道案内", "街の看板・標識"],
+    "タクシー・交通": ["タクシー・交通", "施設・道案内", "空港・飛行機", "ホテル"],
+    "ホテル": ["ホテル", "基本挨拶", "売店・買い物", "タクシー・交通"],
     "カフェ": ["カフェ", "レストラン・名物料理", "売店・買い物"],
     "レストラン・名物料理": ["レストラン・名物料理", "カフェ", "売店・買い物"],
     "街の看板・標識": ["街の看板・標識", "施設・道案内", "空港・飛行機"],
-    "タクシー・交通": ["タクシー・交通", "施設・道案内", "空港・飛行機"],
-    "空港・飛行機": ["空港・飛行機", "タクシー・交通", "施設・道案内", "街の看板・標識"],
     "施設・道案内": ["施設・道案内", "タクシー・交通", "街の看板・標識", "緊急・トラブル"],
     "基本挨拶": ["基本挨拶", "ホテル", "売店・買い物"],
-    "ホテル": ["ホテル", "基本挨拶", "売店・買い物", "施設・道案内"],
     "売店・買い物": ["売店・買い物", "カフェ", "レストラン・名物料理", "基本挨拶"],
     "緊急・トラブル": ["緊急・トラブル", "施設・道案内", "タクシー・交通"],
 }
@@ -1906,7 +1923,7 @@ else:
         """, unsafe_allow_html=True)
 
     # -------------------------------------------------------------
-    # 🎤 発音チェック機能（ギリシャ人の聞こえ方フィードバック完備）
+    # 🎤 発音チェック機能（特大正円ボタン）
     # -------------------------------------------------------------
     with st.expander("🎤 声に出して発音テストに挑戦！（通じる度判定）", expanded=False):
         if not SPEECH_REC_AVAILABLE:
@@ -1926,12 +1943,17 @@ else:
                     
                     st.markdown("---")
                     st.write(f"👂 **AIが聞き取ったギリシャ語:** 「 **{recognized_text}** 」")
-                    st.markdown(f"""
-                    ### 🇬🇷 ギリシャの人にはこう聞こえています：
-                    # 👉 **「 {heard_kana} 」**
-                    """)
+                    
+                    st.markdown(
+                        f"""
+                        <div style="background-color: #f8fafc; border-left: 4px solid #0284c7; padding: 10px 14px; border-radius: 8px; margin: 12px 0;">
+                            <div style="font-size: 0.95rem; color: #475569; font-weight: bold; margin-bottom: 4px;">🇬🇷 ギリシャの人にはこう聞こえています：</div>
+                            <div style="font-size: 1.35rem; color: #0284c7; font-weight: bold;">👉 「 {heard_kana} 」</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
 
-                    # 別の単語として勘違いされていないかチェック
                     norm_rec = normalize_greek(recognized_text)
                     norm_target = normalize_greek(q["greek"])
                     accidental_match = None
@@ -1944,7 +1966,6 @@ else:
                     if accidental_match:
                         st.warning(f"⚠️ **注意:** 今の発音だと「**{accidental_match['meaning']}**」と勘違いされてしまう可能性があります！")
 
-                    # 点数に応じたアドバイス
                     if result >= 80:
                         st.success(f"🌟 **判定: {result}%！ 完璧です！** 現地の人にもバッチリ正確に伝わっています！")
                     elif result >= 55:
