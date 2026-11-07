@@ -128,7 +128,7 @@ if not st.session_state.authenticated:
     st.stop()
 
 # -------------------------------------------------------------
-# 2. 旅行フレーズ・グルメ・看板データベース（超充実版）
+# 2. 旅行フレーズ・グルメ・看板データベース
 # -------------------------------------------------------------
 DATASET = [
     # === 基本挨拶・日常会話 ===
@@ -186,9 +186,7 @@ DATASET = [
         "category": "基本挨拶",
         "level": "初級",
         "speaker": "自分",
-        "breakdown": [
-            {"word": "Καλημέρα", "meaning": "良い朝（おはよう）"}
-        ]
+        "breakdown": [{"word": "Καλημέρα", "meaning": "良い朝（おはよう）"}]
     },
     {
         "greek": "Καλησπέρα",
@@ -197,9 +195,7 @@ DATASET = [
         "category": "基本挨拶",
         "level": "初級",
         "speaker": "自分",
-        "breakdown": [
-            {"word": "Καλησπέρα", "meaning": "良い夕暮れ（こんばんは）"}
-        ]
+        "breakdown": [{"word": "Καλησπέρα", "meaning": "良い夕暮れ（こんばんは）"}]
     },
     {
         "greek": "Συγγνώμη",
@@ -1424,7 +1420,7 @@ def get_greek_audio(text):
     return fp.read()
 
 # -------------------------------------------------------------
-# 4. 単語タップ可能なHTML文章生成関数（毎問確実に更新）
+# 4. 単語タップ可能なHTML文章生成関数
 # -------------------------------------------------------------
 def render_duo_sentence(q, q_num):
     breakdown = q.get("breakdown", [])
@@ -1470,6 +1466,15 @@ if "is_correct" not in st.session_state:
 if "last_filter_key" not in st.session_state:
     st.session_state.last_filter_key = ""
 
+if "deck" not in st.session_state:
+    st.session_state.deck = []
+if "wrong_questions" not in st.session_state:
+    st.session_state.wrong_questions = []
+if "is_review_mode" not in st.session_state:
+    st.session_state.is_review_mode = False
+if "review_queue" not in st.session_state:
+    st.session_state.review_queue = []
+
 # -------------------------------------------------------------
 # 6. サイドバー設定
 # -------------------------------------------------------------
@@ -1496,6 +1501,7 @@ current_filter_key = f"{selected_cat}_{selected_lvl}"
 filter_changed = False
 if st.session_state.last_filter_key != current_filter_key:
     st.session_state.last_filter_key = current_filter_key
+    st.session_state.deck = []
     filter_changed = True
 
 st.sidebar.markdown("---")
@@ -1503,6 +1509,10 @@ if st.sidebar.button("🔄 ゲームをリセット", use_container_width=True, 
     st.session_state.hearts = 5
     st.session_state.xp = 0
     st.session_state.streak = 0
+    st.session_state.deck = []
+    st.session_state.wrong_questions = []
+    st.session_state.is_review_mode = False
+    st.session_state.review_queue = []
     filter_changed = True
 
 if st.sidebar.button("🔒 ログアウト", use_container_width=True, key="logout_btn"):
@@ -1510,8 +1520,21 @@ if st.sidebar.button("🔒 ログアウト", use_container_width=True, key="logo
     st.rerun()
 
 # -------------------------------------------------------------
-# 7. 問題抽出 ＆ 紛らわしい選択肢の生成ロジック
+# 7. 山札方式 ＆ 親和性ブレンドによる高ランダム出題ロジック
 # -------------------------------------------------------------
+RELATED_CATEGORIES = {
+    "カフェ": ["カフェ", "レストラン・名物料理", "売店・買い物"],
+    "レストラン・名物料理": ["レストラン・名物料理", "カフェ", "売店・買い物"],
+    "街の看板・標識": ["街の看板・標識", "施設・道案内", "空港・飛行機"],
+    "タクシー・交通": ["タクシー・交通", "施設・道案内", "空港・飛行機"],
+    "空港・飛行機": ["空港・飛行機", "タクシー・交通", "施設・道案内", "街の看板・標識"],
+    "施設・道案内": ["施設・道案内", "タクシー・交通", "街の看板・標識", "緊急・トラブル"],
+    "基本挨拶": ["基本挨拶", "ホテル", "売店・買い物"],
+    "ホテル": ["ホテル", "基本挨拶", "売店・買い物", "施設・道案内"],
+    "売店・買い物": ["売店・買い物", "カフェ", "レストラン・名物料理", "基本挨拶"],
+    "緊急・トラブル": ["緊急・トラブル", "施設・道案内", "タクシー・交通"],
+}
+
 def get_filtered_pool():
     pool = DATASET
     if selected_cat != "全場面（ランダム特訓）":
@@ -1521,30 +1544,52 @@ def get_filtered_pool():
     return pool
 
 def next_question():
-    pool = get_filtered_pool()
-    if not pool:
-        st.session_state.current_q = None
-        return
+    if st.session_state.is_review_mode:
+        if not st.session_state.review_queue:
+            st.session_state.current_q = None
+            return
+        target = st.session_state.review_queue[0]
+        st.session_state.current_q = target
+    else:
+        pool = get_filtered_pool()
+        if not pool:
+            st.session_state.current_q = None
+            return
 
-    candidates = [q for q in pool if q != st.session_state.current_q]
-    if not candidates:
-        candidates = pool
-    target = random.choice(candidates)
-    st.session_state.current_q = target
+        if not st.session_state.deck:
+            new_deck = list(pool)
+            random.shuffle(new_deck)
+            st.session_state.deck = new_deck
+
+        target = st.session_state.deck.pop(0)
+        st.session_state.current_q = target
 
     if target["category"] == "街の看板・標識":
         st.session_state.is_listening_mode = False
     else:
         st.session_state.is_listening_mode = random.random() < 0.30
 
-    same_cat_wrong = [q["meaning"] for q in DATASET if q["category"] == target["category"] and q["meaning"] != target["meaning"]]
+    cat = target["category"]
+    rel_cats = RELATED_CATEGORIES.get(cat, [cat])
 
-    if len(same_cat_wrong) >= 3:
-        wrong_choices = random.sample(same_cat_wrong, 3)
+    same_cat_wrong = [q["meaning"] for q in DATASET if q["category"] == cat and q["meaning"] != target["meaning"]]
+    rel_cat_wrong = [q["meaning"] for q in DATASET if q["category"] in rel_cats and q["meaning"] != target["meaning"]]
+    all_wrong = [q["meaning"] for q in DATASET if q["meaning"] != target["meaning"]]
+
+    wrong_choices = []
+    if same_cat_wrong:
+        k_same = min(len(same_cat_wrong), random.choice([1, 2]))
+        wrong_choices.extend(random.sample(same_cat_wrong, k_same))
+
+    needed = 3 - len(wrong_choices)
+    avail_rel = [m for m in rel_cat_wrong if m not in wrong_choices]
+    if len(avail_rel) >= needed:
+        wrong_choices.extend(random.sample(avail_rel, needed))
     else:
-        other_wrong = [q["meaning"] for q in DATASET if q["category"] != target["category"] and q["meaning"] != target["meaning"]]
-        needed = 3 - len(same_cat_wrong)
-        wrong_choices = same_cat_wrong + random.sample(other_wrong, min(needed, len(other_wrong)))
+        wrong_choices.extend(avail_rel)
+        needed2 = 3 - len(wrong_choices)
+        avail_all = [m for m in all_wrong if m not in wrong_choices]
+        wrong_choices.extend(random.sample(avail_all, min(needed2, len(avail_all))))
 
     choices = wrong_choices + [target["meaning"]]
     random.shuffle(choices)
@@ -1552,7 +1597,7 @@ def next_question():
     st.session_state.answered = False
     st.session_state.q_count += 1
 
-if filter_changed or st.session_state.current_q is None:
+if filter_changed or (st.session_state.current_q is None and not st.session_state.is_review_mode):
     next_question()
 
 # -------------------------------------------------------------
@@ -1560,24 +1605,69 @@ if filter_changed or st.session_state.current_q is None:
 # -------------------------------------------------------------
 st.title("🇬🇷 ギリシャ語特訓アプリ")
 
-st.info(f"📍 **設定中のモード:** 【{selected_cat}】 ｜ 難易度: **{selected_lvl}**")
-
-if st.session_state.hearts <= 0:
-    st.error("💔 ハートがゼロになりました！")
-    st.subheader(f"獲得スコア: {st.session_state.xp} XP")
-    if st.button("🔄 ハートを満タンにして再挑戦", use_container_width=True, key="revive_btn"):
+# =============================================================
+# A. 復習特訓完了画面（キューが空になった時に確実に表示）
+# =============================================================
+if st.session_state.is_review_mode and not st.session_state.review_queue:
+    st.balloons()
+    st.success("🎉 **お見事！ すべての間違いを完全に克服しました！**")
+    st.markdown("""
+    間違えた問題をすべて解き直し、完璧にマスターしました！  
+    ライフが **❤️❤️❤️❤️❤️（5個満タン）** に全回復しました。
+    """)
+    st.markdown("---")
+    st.subheader("さらに勉強をはじめますか？")
+    if st.button("✨ はい、さらに勉強を始める（ライフ5個で再開）", use_container_width=True, key="continue_study_btn"):
+        st.session_state.is_review_mode = False
         st.session_state.hearts = 5
         st.session_state.streak = 0
+        st.session_state.wrong_questions = []
+        st.session_state.deck = []  # 新しい山札をセット
+        st.session_state.answered = False
         next_question()
         st.rerun()
     st.stop()
 
-col1, col2 = st.columns(2)
-with col1:
-    hearts_ui = "❤️ " * st.session_state.hearts + "🖤 " * (5 - st.session_state.hearts)
-    st.write(f"**ライフ:** {hearts_ui}")
-with col2:
-    st.write(f"**スコア:** ⚡ {st.session_state.xp} XP | 🔥 **連続:** {st.session_state.streak}問")
+# =============================================================
+# B. ハートゼロ時のゲームオーバー ＆ 復習特訓への案内画面
+# =============================================================
+if not st.session_state.is_review_mode and st.session_state.hearts <= 0:
+    st.error("💔 ハートがゼロになりました！")
+    st.subheader(f"獲得スコア: {st.session_state.xp} XP")
+
+    num_wrong = len(st.session_state.wrong_questions)
+    if num_wrong > 0:
+        st.warning(f"⚠️ 今回つまずいた問題が **{num_wrong} 問** あります。")
+        st.write("そのまま再挑戦することはできません。間違えた問題をすべて解き直して克服するとハートが全回復します！")
+
+        if st.button("🔥 間違えた問題の復習特訓を始める", use_container_width=True, key="start_review_btn"):
+            st.session_state.is_review_mode = True
+            st.session_state.review_queue = list(st.session_state.wrong_questions)
+            random.shuffle(st.session_state.review_queue)
+            next_question()
+            st.rerun()
+    else:
+        if st.button("🔄 ハートを満タンにして再挑戦", use_container_width=True, key="safe_reset_btn"):
+            st.session_state.hearts = 5
+            st.session_state.streak = 0
+            st.session_state.deck = []
+            next_question()
+            st.rerun()
+    st.stop()
+
+# =============================================================
+# C. ステータスバー表示
+# =============================================================
+if st.session_state.is_review_mode:
+    st.warning(f"🔄 **【弱点克服・復習特訓中】** 残り間違えた問題: **{len(st.session_state.review_queue)} 問**（正解するまで終わりません）")
+else:
+    st.info(f"📍 **設定中のモード:** 【{selected_cat}】 ｜ 難易度: **{selected_lvl}**")
+    col1, col2 = st.columns(2)
+    with col1:
+        hearts_ui = "❤️ " * st.session_state.hearts + "🖤 " * (5 - st.session_state.hearts)
+        st.write(f"**ライフ:** {hearts_ui}")
+    with col2:
+        st.write(f"**スコア:** ⚡ {st.session_state.xp} XP | 🔥 **連続:** {st.session_state.streak}問")
 
 st.markdown("---")
 
@@ -1586,7 +1676,6 @@ if q is None:
     st.warning("⚠️ 選択した条件に一致する問題がありません。サイドバーの設定を変更してください。")
     st.stop()
 
-# 役割・属性ごとのDuolingo風バッジ
 speaker_val = q.get("speaker", "自分")
 if speaker_val == "スタッフ":
     speaker_badge = "🛎️ **店員・係員が話しかけています（聞き取り特訓）**"
@@ -1599,12 +1688,10 @@ else:
 
 st.caption(f"{speaker_badge} ｜ ジャンル: 【{q['category']}】 / 難易度: {q['level']}")
 
-# 音声再生
 audio_bytes = get_greek_audio(q["greek"])
 audio_box = st.empty()
 audio_box.audio(audio_bytes, format="audio/mp3")
 
-# ギリシャ語文字の表示エリア
 sentence_container = st.empty()
 with sentence_container.container():
     if st.session_state.is_listening_mode:
@@ -1616,6 +1703,9 @@ with sentence_container.container():
 
 st.write("")
 
+# =============================================================
+# D. 解答選択肢ボタン
+# =============================================================
 if not st.session_state.answered:
     for i, choice in enumerate(st.session_state.choices):
         btn_key = f"choice_{st.session_state.q_count}_{i}"
@@ -1627,14 +1717,26 @@ if not st.session_state.answered:
                 st.session_state.streak += 1
             else:
                 st.session_state.is_correct = False
-                st.session_state.hearts -= 1
                 st.session_state.streak = 0
+                if not st.session_state.is_review_mode:
+                    st.session_state.hearts -= 1
+                    if not any(item["greek"] == q["greek"] for item in st.session_state.wrong_questions):
+                        st.session_state.wrong_questions.append(q)
             st.rerun()
 else:
+    # =============================================================
+    # E. 解答後の結果表示 ＆ 次へ進む処理
+    # =============================================================
     if st.session_state.is_correct:
-        st.success("🎉 正解！ +10 XP")
+        if st.session_state.is_review_mode:
+            st.success("🎉 正解！ この問題を克服しました！")
+        else:
+            st.success("🎉 正解！ +10 XP")
     else:
-        st.error(f"💔 不正解... 正解は: **{q['meaning']}**")
+        if st.session_state.is_review_mode:
+            st.error(f"💔 不正解... 正解は: **{q['meaning']}**（もう一度あとで出題されます）")
+        else:
+            st.error(f"💔 不正解... 正解は: **{q['meaning']}**")
 
     if speaker_val == "スタッフ":
         speaker_title = "店員・相手の発言"
@@ -1645,14 +1747,12 @@ else:
     else:
         speaker_title = "フレーズ"
 
-    # 【指定の3行フォーマットは完全維持】
     st.markdown(f"""
     > **🇬🇷 ギリシャ文字:** {q['greek']}  
     > **🗣️ カタカナ発音:** **{q['reading']}**  
     > **🇯🇵 日本語の意味:** **{q['meaning']}**（{speaker_title}）
     """)
 
-    # 【追加：料理や文化の詳しい解説カード】
     dish_info = q.get("dish_info")
     if dish_info:
         st.markdown(f"""
@@ -1667,6 +1767,14 @@ else:
             for item in breakdown_list:
                 st.write(f"- **{item['word']}** : {item['meaning']}")
 
-    if st.button("次の問題へ進む ➔", use_container_width=True, key=f"next_btn_{st.session_state.q_count}"):
+    next_btn_label = "次の復習問題へ進む ➔" if st.session_state.is_review_mode else "次の問題へ進む ➔"
+    if st.button(next_btn_label, use_container_width=True, key=f"next_btn_{st.session_state.q_count}"):
+        if st.session_state.is_review_mode:
+            if st.session_state.is_correct:
+                st.session_state.review_queue.pop(0)
+            else:
+                retry_item = st.session_state.review_queue.pop(0)
+                st.session_state.review_queue.append(retry_item)
+
         next_question()
         st.rerun()
