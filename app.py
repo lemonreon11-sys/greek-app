@@ -30,7 +30,7 @@ SECRET_PASSWORD = "0731"
 
 st.set_page_config(page_title="ギリシャ語Duo道場", page_icon="🇬🇷", layout="centered")
 
-# 安全なCSSによる自動翻訳防止 ＆ 単語ポップアップ ＆ 録音ボタン特大化デザイン
+# 安全なCSSによる自動翻訳防止 ＆ 単語ポップアップ ＆ 録音UI最適化デザイン
 st.markdown(
     """
     <style>
@@ -116,26 +116,44 @@ st.markdown(
         line-height: 1.5rem;
     }
 
-    /* 🎤 録音・停止ボタンの特大化スタイル */
+    /* 🎤 録音エリアの全体レイアウト */
     [data-testid="stAudioInput"] {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
         background-color: #f0f9ff !important;
         border: 2px dashed #0284c7 !important;
         border-radius: 16px !important;
-        padding: 22px 14px !important;
+        padding: 16px 20px !important;
         margin: 12px 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
-    [data-testid="stAudioInput"] button {
-        transform: scale(1.7) !important;
-        margin: 12px 24px !important;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3) !important;
+
+    /* 特大マイクボタン */
+    [data-testid="stAudioInput"] > div:first-child button {
+        min-width: 62px !important;
+        min-height: 62px !important;
+        border-radius: 50% !important;
+        font-size: 1.35rem !important;
+        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.28) !important;
         cursor: pointer !important;
-        transition: transform 0.1s ease !important;
+        transition: transform 0.12s ease !important;
+        margin: 8px auto !important;
     }
-    [data-testid="stAudioInput"] button:active {
-        transform: scale(1.55) !important;
+    [data-testid="stAudioInput"] > div:first-child button:active {
+        transform: scale(0.92) !important;
+    }
+
+    /* 録音後のプレーヤー（被り防止） */
+    [data-testid="stAudioInput"] [data-testid="stAudio"] {
+        width: 100% !important;
+        margin-top: 8px !important;
+    }
+    [data-testid="stAudioInput"] [data-testid="stAudio"] button {
+        min-width: auto !important;
+        min-height: auto !important;
+        border-radius: 8px !important;
+        transform: none !important;
+        box-shadow: none !important;
+        margin: 0 4px !important;
     }
     </style>
     """,
@@ -404,8 +422,6 @@ DATASET = [
         "dish_info": "エスプレッソを氷と一緒にミキサーで急冷したギリシャ若者の圧倒的1番人気ドリンクです。"
     },
     {
-        "greek": "Έναν φρέντο καπουτσίノ, παρακαλώ.",
-        "greek": "Έναν φρέντο καπουτσίノ, παρακαλώ.",
         "greek": "Έναν φρέντο καπουτσίνο, παρακαλώ.",
         "reading": "エナン フレット カプチーノ, パラカロ",
         "meaning": "アイスカプチーノを1杯ください",
@@ -1442,7 +1458,7 @@ DATASET = [
 ]
 
 # -------------------------------------------------------------
-# 3. 音声生成 ＆ 発音判定関数
+# 3. 音声生成 ＆ カタカナ変換 ＆ 発音判定関数
 # -------------------------------------------------------------
 @st.cache_data
 def get_greek_audio(text):
@@ -1458,6 +1474,75 @@ def normalize_greek(text):
     no_accents = no_accents.replace('ς', 'σ')
     clean = re.sub(r'[^\w\s]', '', no_accents).strip()
     return ' '.join(clean.split())
+
+def greek_to_katakana(text):
+    """ギリシャ文字をネイティブ風のカタカナ読みに自動変換するエンジン"""
+    if not text:
+        return ""
+    t = text.lower()
+
+    # 二重母音・子音連結
+    subs = [
+        ('γεια', 'ヤ'), ('γει', 'イェ'), ('για', 'ヤ'), ('γιο', 'ヨ'), ('γιου', 'ユ'),
+        ('μπ', 'b'), ('ντ', 'd'), ('γκ', 'g'), ('γγ', 'ng'),
+        ('ευ', 'ef'), ('αυ', 'af'), ('ου', 'u'),
+        ('αι', 'e'), ('ει', 'i'), ('οι', 'i'), ('υι', 'i'),
+        ('τσ', 'ts'), ('τζ', 'dz'),
+        ('α', 'a'), ('β', 'v'), ('γ', 'g'), ('δ', 'dh'), ('ε', 'e'),
+        ('ζ', 'z'), ('η', 'i'), ('θ', 'th'), ('ι', 'i'), ('κ', 'k'),
+        ('λ', 'l'), ('μ', 'm'), ('ν', 'n'), ('ξ', 'x'), ('ο', 'o'),
+        ('π', 'p'), ('ρ', 'r'), ('σ', 's'), ('ς', 's'), ('τ', 't'),
+        ('υ', 'i'), ('φ', 'f'), ('χ', 'h'), ('ψ', 'ps'), ('ω', 'o'),
+        ('ά', 'a'), ('έ', 'e'), ('ή', 'i'), ('ί', 'i'), ('ό', 'o'),
+        ('ύ', 'i'), ('ώ', 'o'), ('ϊ', 'i'), ('ϋ', 'i')
+    ]
+
+    table = [
+        ('tsu', 'ツ'), ('shi', 'シ'), ('chi', 'チ'), ('dzu', 'ヅ'),
+        ('kya', 'キャ'), ('kyu', 'キュ'), ('kyo', 'キョ'),
+        ('sha', 'シャ'), ('shu', 'シュ'), ('sho', 'ショ'),
+        ('cha', 'チャ'), ('chu', 'チュ'), ('cho', 'チョ'),
+        ('nya', 'ニャ'), ('nyu', 'ニュ'), ('nyo', 'ニョ'),
+        ('hya', 'ヒャ'), ('hyu', 'ヒュ'), ('hyo', 'ヒョ'),
+        ('mya', 'ミャ'), ('myu', 'ミュ'), ('myo', 'ミョ'),
+        ('rya', 'リャ'), ('ryu', 'リュ'), ('ryo', 'リョ'),
+        ('gya', 'ギャ'), ('gyu', 'ギュ'), ('gyo', 'ギョ'),
+        ('bya', 'ビャ'), ('byu', 'ビュ'), ('byo', 'ビョ'),
+        ('pya', 'ピャ'), ('pyu', 'ピュ'), ('pyo', 'ピョ'),
+        ('fa', 'ファ'), ('fi', 'フィ'), ('fe', 'フェ'), ('fo', 'フォ'), ('fu', 'フ'),
+        ('va', 'ヴァ'), ('vi', 'ヴィ'), ('vu', 'ヴ'), ('ve', 'ヴェ'), ('vo', 'ヴォ'), ('v', 'ヴ'),
+        ('dha', 'ザ'), ('dhi', 'ズィ'), ('dhu', 'ズ'), ('dhe', 'ゼ'), ('dho', 'ゾ'), ('dh', 'ズ'),
+        ('tha', 'サ'), ('thi', 'スィ'), ('thu', 'ス'), ('the', 'セ'), ('tho', 'ソ'), ('th', 'ス'),
+        ('dza', 'ザ'), ('dzi', 'ズィ'), ('dzu', 'ズ'), ('dze', 'ゼ'), ('dzo', 'ゾ'), ('dz', 'ズ'),
+        ('tsa', 'ツァ'), ('tsi', 'ツィ'), ('tse', 'ツェ'), ('tso', 'ツォ'), ('ts', 'ツ'),
+        ('xa', 'クサ'), ('xi', 'クシ'), ('xu', 'クス'), ('xe', 'クセ'), ('xo', 'クソ'),
+        ('psa', 'プサ'), ('psi', 'プシ'), ('psu', 'プス'), ('pse', 'プセ'), ('pso', 'プソ'),
+        ('ka', 'カ'), ('ki', 'キ'), ('ku', 'ク'), ('ke', 'ケ'), ('ko', 'コ'),
+        ('ga', 'ガ'), ('gi', 'ギ'), ('gu', 'グ'), ('ge', 'ゲ'), ('go', 'ゴ'),
+        ('sa', 'サ'), ('si', 'シ'), ('su', 'ス'), ('se', 'セ'), ('so', 'ソ'),
+        ('za', 'ザ'), ('zi', 'ジ'), ('zu', 'ズ'), ('ze', 'ゼ'), ('zo', 'ゾ'),
+        ('ta', 'タ'), ('ti', 'ティ'), ('tu', 'トゥ'), ('te', 'テ'), ('to', 'ト'),
+        ('da', 'ダ'), ('di', 'ディ'), ('du', 'ドゥ'), ('de', 'デ'), ('do', 'ド'),
+        ('na', 'ナ'), ('ni', 'ニ'), ('nu', 'ヌ'), ('ne', 'ネ'), ('no', 'ノ'),
+        ('ha', 'ハ'), ('hi', 'ヒ'), ('hu', 'フ'), ('he', 'ヘ'), ('ho', 'ホ'),
+        ('ba', 'バ'), ('bi', 'ビ'), ('bu', 'ブ'), ('be', 'ベ'), ('bo', 'ボ'),
+        ('pa', 'パ'), ('pi', 'ピ'), ('pu', 'プ'), ('pe', 'ペ'), ('po', 'ポ'),
+        ('ma', 'マ'), ('mi', 'ミ'), ('mu', 'ム'), ('me', 'メ'), ('mo', 'モ'),
+        ('ya', 'ヤ'), ('yu', 'ユ'), ('yo', 'ヨ'),
+        ('ra', 'ラ'), ('ri', 'リ'), ('ru', 'ル'), ('re', 'レ'), ('ro', 'ロ'),
+        ('la', 'ラ'), ('li', 'リ'), ('lu', 'ル'), ('le', 'レ'), ('lo', 'ロ'),
+        ('wa', 'ワ'), ('wo', 'ヲ'),
+        ('a', 'ア'), ('i', 'イ'), ('u', 'ウ'), ('e', 'エ'), ('o', 'オ'),
+        ('k', 'ク'), ('g', 'グ'), ('s', 'ス'), ('z', 'ズ'), ('t', 'ト'),
+        ('d', 'ド'), ('n', 'ン'), ('h', 'フ'), ('b', 'ブ'), ('p', 'プ'),
+        ('m', 'ム'), ('r', 'ル'), ('l', 'ル'), ('x', 'クス'), ('f', 'フ'),
+    ]
+
+    for g, r in subs:
+        t = t.replace(g, r)
+    for r, k in table:
+        t = t.replace(r, k)
+    return t
 
 def evaluate_pronunciation(audio_file, target_greek):
     if not SPEECH_REC_AVAILABLE:
@@ -1821,34 +1906,56 @@ else:
         """, unsafe_allow_html=True)
 
     # -------------------------------------------------------------
-    # 🎤 発音チェック機能（特大ボタンUI）
+    # 🎤 発音チェック機能（ギリシャ人の聞こえ方フィードバック完備）
     # -------------------------------------------------------------
-    if speaker_val != "看板":
-        with st.expander("🎤 声に出して発音テストに挑戦！（通じる度判定）", expanded=False):
-            if not SPEECH_REC_AVAILABLE:
-                st.warning("⚠️ 発音チェック機能を使うには、PCのコマンドプロンプトで `pip install SpeechRecognition` を実行してください。")
-            else:
-                st.info(f"🗣️ **お手本発音:** **「 {q['reading']} 」**")
-                st.caption("👇 **大きなマイクを押して録音開始 ➔ 言い終わったらもう一度押して停止（判定）**")
-                
-                audio_recorded = st.audio_input("マイク録音", key=f"rec_{st.session_state.q_count}", label_visibility="collapsed")
+    with st.expander("🎤 声に出して発音テストに挑戦！（通じる度判定）", expanded=False):
+        if not SPEECH_REC_AVAILABLE:
+            st.warning("⚠️ 発音チェック機能を使うには、PCのコマンドプロンプトで `pip install SpeechRecognition` を実行してください。")
+        else:
+            st.info(f"🗣️ **お手本発音:** **「 {q['reading']} 」**")
+            st.caption("👇 **大きな丸いマイクを押して録音開始 ➔ 言い終わったらもう一度押して停止**")
+            
+            audio_recorded = st.audio_input("マイク録音", key=f"rec_{st.session_state.q_count}", label_visibility="collapsed")
 
-                if audio_recorded is not None:
-                    with st.spinner("AIが発音を聞き取り中..."):
-                        recognized_text, result = evaluate_pronunciation(audio_recorded, q["greek"])
+            if audio_recorded is not None:
+                with st.spinner("AIがギリシャ人の耳で聞き取り中..."):
+                    recognized_text, result = evaluate_pronunciation(audio_recorded, q["greek"])
 
-                    if recognized_text:
-                        st.write(f"👂 **AIが聞き取ったギリシャ語:** 「 **{recognized_text}** 」")
-                        if result >= 80:
-                            st.success(f"🌟 **判定: {result}%！ 完璧です！** ネイティブに確実に通じます！")
-                        elif result >= 55:
-                            st.info(f"👍 **判定: {result}%！ おおむね通じます！** もう少しアクセントを意識すると満点です。")
-                        else:
-                            st.warning(f"💪 **判定: {result}%！ 惜しい！** もう一度カタカナ発音を意識して喋ってみましょう。")
-                    elif result == "UNKNOWN_VALUE":
-                        st.error("⚠️ 音声を聞き取れませんでした。マイクに少し近づいて、もう一度ゆっくり発音してください。")
+                if recognized_text:
+                    heard_kana = greek_to_katakana(recognized_text)
+                    
+                    st.markdown("---")
+                    st.write(f"👂 **AIが聞き取ったギリシャ語:** 「 **{recognized_text}** 」")
+                    st.markdown(f"""
+                    ### 🇬🇷 ギリシャの人にはこう聞こえています：
+                    # 👉 **「 {heard_kana} 」**
+                    """)
+
+                    # 別の単語として勘違いされていないかチェック
+                    norm_rec = normalize_greek(recognized_text)
+                    norm_target = normalize_greek(q["greek"])
+                    accidental_match = None
+                    if norm_rec != norm_target:
+                        for item in DATASET:
+                            if normalize_greek(item["greek"]) == norm_rec and item["meaning"] != q["meaning"]:
+                                accidental_match = item
+                                break
+
+                    if accidental_match:
+                        st.warning(f"⚠️ **注意:** 今の発音だと「**{accidental_match['meaning']}**」と勘違いされてしまう可能性があります！")
+
+                    # 点数に応じたアドバイス
+                    if result >= 80:
+                        st.success(f"🌟 **判定: {result}%！ 完璧です！** 現地の人にもバッチリ正確に伝わっています！")
+                    elif result >= 55:
+                        st.info(f"👍 **判定: {result}%！ おおむね通じます！** 「{heard_kana}」と伝わりますが、もう少し「{q['reading']}」の強弱を意識すると満点です！")
                     else:
-                        st.error("⚠️ 音声認識でエラーが発生しました。通信環境を確認してください。")
+                        st.warning(f"💪 **判定: {result}%！ 惜しい！** 現地の人には「{heard_kana}」と聞こえているため、上の音声をもう一度聴いて再チャレンジしてみましょう！")
+
+                elif result == "UNKNOWN_VALUE":
+                    st.error("⚠️ 音声を聞き取れませんでした。マイクに少し近づいて、もう一度ゆっくり発音してください。")
+                else:
+                    st.error("⚠️ 音声認識でエラーが発生しました。通信環境を確認してください。")
 
     breakdown_list = q.get("breakdown", [])
     if breakdown_list:
